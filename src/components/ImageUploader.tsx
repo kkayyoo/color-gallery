@@ -30,7 +30,11 @@ export default function ImageUploader({ onFile }: Props) {
   return (
     <div
       onDragOver={e => { e.preventDefault(); setDragging(true) }}
-      onDragLeave={() => setDragging(false)}
+      onDragLeave={e => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setDragging(false)
+          }
+        }}
       onDrop={handleDrop}
       onClick={() => inputRef.current?.click()}
       className={`

@@ -21,7 +21,7 @@ export default function ColorPalette({ colors, loading = false }: Props) {
             <span className="text-xs font-mono text-gray-400">{color.hex}</span>
           </div>
           <button
-            onClick={() => navigator.clipboard?.writeText(color.hex)}
+            onClick={() => navigator.clipboard?.writeText(color.hex).catch(() => {})}
             className="ml-auto text-xs text-gray-600 hover:text-gray-300 transition-colors flex-shrink-0"
             title="Copy HEX"
           >
