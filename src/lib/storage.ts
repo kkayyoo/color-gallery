@@ -1,17 +1,18 @@
-import type { ColorCard } from '../types'
+import type { ColorEntry, ColorCard } from '../types'
 
 const STORAGE_KEY = 'color-collection'
 const SIZE_WARNING_BYTES = 4 * 1024 * 1024 // 4MB
 
-function isValidColorEntry(entry: unknown): entry is import('../types').ColorEntry {
+function isValidColorEntry(entry: unknown): entry is ColorEntry {
   if (typeof entry !== 'object' || entry === null) return false
   const e = entry as Record<string, unknown>
   return (
     typeof e.hex === 'string' &&
+    /^#[0-9A-Fa-f]{6}$/.test(e.hex) &&
     typeof e.name === 'string' &&
-    typeof e.r === 'number' &&
-    typeof e.g === 'number' &&
-    typeof e.b === 'number'
+    typeof e.r === 'number' && Number.isInteger(e.r) && e.r >= 0 && e.r <= 255 &&
+    typeof e.g === 'number' && Number.isInteger(e.g) && e.g >= 0 && e.g <= 255 &&
+    typeof e.b === 'number' && Number.isInteger(e.b) && e.b >= 0 && e.b <= 255
   )
 }
 
@@ -30,7 +31,7 @@ function isValidColorCard(card: unknown): card is ColorCard {
     typeof c.favorited === 'boolean'
   )
   if (!valid) return false
-  // Reject unexpected fields (security: no extra data sneaks in)
+  // Reject unexpected fields to catch schema mismatches and malformed imports
   const allowedKeys = new Set(['id', 'createdAt', 'name', 'imageDataUrl', 'colors', 'favorited'])
   return Object.keys(c).every(k => allowedKeys.has(k))
 }
@@ -48,7 +49,14 @@ export function loadCards(): ColorCard[] {
 }
 
 export function saveCards(cards: ColorCard[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cards))
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cards))
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'QuotaExceededError') {
+      throw new Error('Storage quota exceeded. Please export and delete some cards to free space.')
+    }
+    throw err
+  }
 }
 
 export function isStorageNearLimit(): boolean {
