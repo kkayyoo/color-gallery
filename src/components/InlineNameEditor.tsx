@@ -18,9 +18,12 @@ export default function InlineNameEditor({ value, onSave, className = '' }: Prop
 
   function commit() {
     const trimmed = draft.trim()
-    if (trimmed && trimmed !== value) onSave(trimmed)
-    else setDraft(value)
-    setEditing(false)
+    try {
+      if (trimmed && trimmed !== value) onSave(trimmed)
+      else setDraft(value)
+    } finally {
+      setEditing(false)
+    }
   }
 
   if (editing) {
