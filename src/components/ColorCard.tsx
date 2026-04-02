@@ -40,7 +40,7 @@ export default function ColorCard(props: Props) {
       {/* Body: image + palette */}
       <div className="flex gap-6">
         {/* Image */}
-        <div className="flex-shrink-0 w-48">
+        <div className="flex-shrink-0 w-48 h-40">
           <img
             src={card.imageDataUrl}
             alt={card.name}
@@ -98,6 +98,7 @@ export default function ColorCard(props: Props) {
               onClick={props.onDelete}
               className="ml-auto p-1.5 text-gray-600 hover:text-red-400 transition-colors"
               title="Delete"
+              aria-label="Delete card"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
