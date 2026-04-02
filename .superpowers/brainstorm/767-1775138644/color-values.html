@@ -1,0 +1,36 @@
+<h2>Which color values should appear on each color card?</h2>
+<p class="subtitle">Select all that you want shown. Each extracted color will display its name + these values.</p>
+
+<div class="options" data-multiselect>
+  <div class="option" data-choice="hex" onclick="toggleSelect(this)">
+    <div class="letter">#</div>
+    <div class="content">
+      <h3>HEX</h3>
+      <p>#E63946 — most common for web/design tools</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="rgb" onclick="toggleSelect(this)">
+    <div class="letter">R</div>
+    <div class="content">
+      <h3>RGB</h3>
+      <p>rgb(230, 57, 70) — useful for CSS and coding</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="hsl" onclick="toggleSelect(this)">
+    <div class="letter">H</div>
+    <div class="content">
+      <h3>HSL</h3>
+      <p>hsl(355, 78%, 56%) — intuitive for designers</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="cmyk" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>CMYK</h3>
+      <p>cmyk(0, 75, 70, 10) — for print design</p>
+    </div>
+  </div>
+</div>

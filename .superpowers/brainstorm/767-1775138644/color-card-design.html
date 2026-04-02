@@ -1,0 +1,124 @@
+<h2>Color card design</h2>
+<p class="subtitle">After uploading an image, how should the extracted palette be displayed?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a1a;border-radius:6px;">
+      <!-- Horizontal strip above image -->
+      <div style="display:flex;border-radius:6px;overflow:hidden;margin-bottom:10px;height:64px;">
+        <div style="flex:1;background:#e63946;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <span style="font-size:9px;color:rgba(255,255,255,0.9);font-weight:600;">Crimson</span>
+          <span style="font-size:8px;color:rgba(255,255,255,0.7);">#E63946</span>
+        </div>
+        <div style="flex:1;background:#457b9d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <span style="font-size:9px;color:rgba(255,255,255,0.9);font-weight:600;">Steel Blue</span>
+          <span style="font-size:8px;color:rgba(255,255,255,0.7);">#457B9D</span>
+        </div>
+        <div style="flex:1;background:#f4a261;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <span style="font-size:9px;color:rgba(0,0,0,0.7);font-weight:600;">Sandy</span>
+          <span style="font-size:8px;color:rgba(0,0,0,0.5);">#F4A261</span>
+        </div>
+        <div style="flex:1;background:#2a9d8f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <span style="font-size:9px;color:rgba(255,255,255,0.9);font-weight:600;">Teal</span>
+          <span style="font-size:8px;color:rgba(255,255,255,0.7);">#2A9D8F</span>
+        </div>
+        <div style="flex:1;background:#e9c46a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <span style="font-size:9px;color:rgba(0,0,0,0.7);font-weight:600;">Gold</span>
+          <span style="font-size:8px;color:rgba(0,0,0,0.5);">#E9C46A</span>
+        </div>
+      </div>
+      <div style="background:#333;border-radius:4px;height:80px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#666;">Image preview</div>
+    </div>
+    <div class="card-body">
+      <h3>A — Horizontal strip above image</h3>
+      <p>All 5 colors in one wide band. Name and HEX shown inside each color block. Compact and visual.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a1a;border-radius:6px;">
+      <div style="display:flex;gap:10px;">
+        <!-- Image on left -->
+        <div style="background:#333;border-radius:4px;width:90px;height:120px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;flex-shrink:0;">Image</div>
+        <!-- Color swatches on right -->
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:28px;height:28px;border-radius:4px;background:#e63946;flex-shrink:0;"></div>
+            <div><div style="font-size:10px;color:#fff;font-weight:600;">Crimson</div><div style="font-size:9px;color:#888;">#E63946</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:28px;height:28px;border-radius:4px;background:#457b9d;flex-shrink:0;"></div>
+            <div><div style="font-size:10px;color:#fff;font-weight:600;">Steel Blue</div><div style="font-size:9px;color:#888;">#457B9D</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:28px;height:28px;border-radius:4px;background:#f4a261;flex-shrink:0;"></div>
+            <div><div style="font-size:10px;color:#fff;font-weight:600;">Sandy</div><div style="font-size:9px;color:#888;">#F4A261</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:28px;height:28px;border-radius:4px;background:#2a9d8f;flex-shrink:0;"></div>
+            <div><div style="font-size:10px;color:#fff;font-weight:600;">Teal</div><div style="font-size:9px;color:#888;">#2A9D8F</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:28px;height:28px;border-radius:4px;background:#e9c46a;flex-shrink:0;"></div>
+            <div><div style="font-size:10px;color:#fff;font-weight:600;">Gold</div><div style="font-size:9px;color:#888;">#E9C46A</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Image + swatch list side by side</h3>
+      <p>Image on the left, color swatches listed vertically on the right with name and HEX.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a1a;border-radius:6px;">
+      <!-- Image full width -->
+      <div style="background:#333;border-radius:4px;height:70px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;margin-bottom:8px;">Image preview</div>
+      <!-- 5 equal cards below -->
+      <div style="display:flex;gap:4px;">
+        <div style="flex:1;border-radius:4px;overflow:hidden;">
+          <div style="background:#e63946;height:36px;"></div>
+          <div style="background:#222;padding:3px;text-align:center;">
+            <div style="font-size:8px;color:#fff;font-weight:600;">Crimson</div>
+            <div style="font-size:7px;color:#888;">#E63946</div>
+          </div>
+        </div>
+        <div style="flex:1;border-radius:4px;overflow:hidden;">
+          <div style="background:#457b9d;height:36px;"></div>
+          <div style="background:#222;padding:3px;text-align:center;">
+            <div style="font-size:8px;color:#fff;font-weight:600;">Steel Blue</div>
+            <div style="font-size:7px;color:#888;">#457B9D</div>
+          </div>
+        </div>
+        <div style="flex:1;border-radius:4px;overflow:hidden;">
+          <div style="background:#f4a261;height:36px;"></div>
+          <div style="background:#222;padding:3px;text-align:center;">
+            <div style="font-size:8px;color:#000;font-weight:600;">Sandy</div>
+            <div style="font-size:7px;color:#666;">#F4A261</div>
+          </div>
+        </div>
+        <div style="flex:1;border-radius:4px;overflow:hidden;">
+          <div style="background:#2a9d8f;height:36px;"></div>
+          <div style="background:#222;padding:3px;text-align:center;">
+            <div style="font-size:8px;color:#fff;font-weight:600;">Teal</div>
+            <div style="font-size:7px;color:#888;">#2A9D8F</div>
+          </div>
+        </div>
+        <div style="flex:1;border-radius:4px;overflow:hidden;">
+          <div style="background:#e9c46a;height:36px;"></div>
+          <div style="background:#222;padding:3px;text-align:center;">
+            <div style="font-size:8px;color:#000;font-weight:600;">Gold</div>
+            <div style="font-size:7px;color:#666;">#E9C46A</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Image above, color cards below</h3>
+      <p>Full-width image on top, 5 equal color cards in a row underneath. Each card has a color block + name + HEX.</p>
+    </div>
+  </div>
+
+</div>
