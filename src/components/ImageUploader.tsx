@@ -1,0 +1,63 @@
+import { useRef, useState } from 'react'
+
+interface Props {
+  onFile: (file: File) => void
+}
+
+const ALLOWED = ['image/jpeg', 'image/png', 'image/webp']
+
+export default function ImageUploader({ onFile }: Props) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [dragging, setDragging] = useState(false)
+
+  function handleFile(file: File) {
+    onFile(file)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (file) handleFile(file)
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) handleFile(file)
+    e.target.value = ''
+  }
+
+  return (
+    <div
+      onDragOver={e => { e.preventDefault(); setDragging(true) }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={handleDrop}
+      onClick={() => inputRef.current?.click()}
+      className={`
+        flex flex-col items-center justify-center gap-3 
+        border-2 border-dashed rounded-2xl p-16 cursor-pointer
+        transition-colors select-none
+        ${dragging
+          ? 'border-indigo-400 bg-indigo-950/30'
+          : 'border-gray-700 hover:border-gray-500 bg-gray-900/50'
+        }
+      `}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ALLOWED.join(',')}
+        className="hidden"
+        onChange={handleChange}
+      />
+      <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+      </svg>
+      <p className="text-gray-400 text-sm text-center">
+        Drag & drop an image here, or <span className="text-indigo-400">click to browse</span>
+      </p>
+      <p className="text-gray-600 text-xs">JPG, PNG, WebP · Max 20MB</p>
+    </div>
+  )
+}
