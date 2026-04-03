@@ -39,17 +39,17 @@ export default function ColorCard(props: Props) {
 
       {/* Body: image + palette */}
       <div className="flex gap-6">
-        {/* Image */}
-        <div className="flex-shrink-0 w-48 h-40">
+        {/* Image — 60% */}
+        <div className="w-[60%] flex-shrink-0">
           <img
             src={card.imageDataUrl}
             alt={card.name}
-            className="w-full h-full object-cover rounded-xl"
+            className="w-full rounded-xl object-contain"
           />
         </div>
 
-        {/* Palette */}
-        <div className="flex-1 min-w-0">
+        {/* Palette — 40% */}
+        <div className="w-[40%] min-w-0">
           <ColorPalette colors={card.colors} loading={loading} />
         </div>
       </div>

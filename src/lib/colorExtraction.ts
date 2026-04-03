@@ -5,8 +5,9 @@
 // Random centroid seeding (k-means++) means re-running on the same image
 // can converge to slightly different results, giving useful variation on re-generate.
 
-const SAMPLE_SIZE = 2000  // pixels to sample (fast + representative)
-const MAX_ITERATIONS = 20 // k-means convergence limit
+const SAMPLE_SIZE = 2000   // pixels to sample (fast + representative)
+const MAX_ITERATIONS = 20  // k-means convergence limit
+const CANDIDATE_K = 12     // run k-means with more clusters than needed, then select diverse subset
 
 interface RGB { r: number; g: number; b: number }
 
@@ -111,7 +112,7 @@ function nearestCentroid(pixel: RGB, centroids: RGB[]): number {
   return best
 }
 
-function kmeans(pixels: RGB[], k: number): RGB[] {
+function kmeans(pixels: RGB[], k: number): Array<RGB & { size: number }> {
   let centroids = kmeansPlusPlusSeeds(pixels, k)
 
   for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
@@ -151,12 +152,53 @@ function kmeans(pixels: RGB[], k: number): RGB[] {
   return centroids
     .map((c, i) => ({ ...c, size: clusterSizes[i] }))
     .sort((a, b) => b.size - a.size)
-    .map(({ r, g, b }) => ({ r, g, b }))
 }
 
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
+
+/**
+ * Greedily select `k` colors from `candidates` (sorted by descending cluster size)
+ * that are as perceptually distinct as possible.
+ *
+ * Algorithm:
+ * 1. Always start with the largest cluster (most dominant color).
+ * 2. For each subsequent slot, pick the candidate whose minimum squared distance
+ *    to any already-selected color is the largest ("max-min" criterion).
+ *
+ * This ensures the final palette covers the image's color space rather than
+ * clustering around the dominant hue.
+ */
+function selectDiverseColors(candidates: Array<RGB & { size: number }>, k: number): RGB[] {
+  if (candidates.length <= k) return candidates
+
+  const selected: RGB[] = [candidates[0]] // start with dominant color
+  const remaining = candidates.slice(1)
+
+  while (selected.length < k && remaining.length > 0) {
+    // For each remaining candidate, find its minimum distance to any selected color
+    let bestIdx = 0
+    let bestMinDist = -1
+
+    for (let i = 0; i < remaining.length; i++) {
+      let minDist = Infinity
+      for (const s of selected) {
+        const d = sqDist(remaining[i], s)
+        if (d < minDist) minDist = d
+      }
+      if (minDist > bestMinDist) {
+        bestMinDist = minDist
+        bestIdx = i
+      }
+    }
+
+    selected.push(remaining[bestIdx])
+    remaining.splice(bestIdx, 1)
+  }
+
+  return selected
+}
 
 function rgbToHex(r: number, g: number, b: number): string {
   return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase()
@@ -187,6 +229,7 @@ export async function extractDominantColors(imageDataUrl: string, k = 5): Promis
     return pixels.map(({ r, g, b }) => ({ r, g, b, hex: rgbToHex(r, g, b) }))
   }
 
-  const clusters = kmeans(pixels, k)
+  const candidates = kmeans(pixels, CANDIDATE_K)
+  const clusters = selectDiverseColors(candidates, k)
   return clusters.map(({ r, g, b }) => ({ r, g, b, hex: rgbToHex(r, g, b) }))
 }

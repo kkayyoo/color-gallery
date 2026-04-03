@@ -16,6 +16,12 @@ export default function InlineNameEditor({ value, onSave, className = '' }: Prop
     if (editing) inputRef.current?.select()
   }, [editing])
 
+  useEffect(() => {
+    if (!editing) {
+      setDraft(value)
+    }
+  }, [value, editing])
+
   function commit() {
     const trimmed = draft.trim()
     try {
@@ -45,10 +51,20 @@ export default function InlineNameEditor({ value, onSave, className = '' }: Prop
   return (
     <button
       onClick={() => { setDraft(value); setEditing(true) }}
-      className={`text-left hover:underline decoration-dotted underline-offset-2 ${className}`}
+      className={`inline-flex items-baseline gap-2 text-left ${className}`}
       title="Click to rename"
     >
-      {value}
+      <span className="hover:underline decoration-dotted underline-offset-2 leading-none">{value}</span>
+      <svg
+        className="w-[0.9em] h-[0.9em] text-gray-400 flex-shrink-0 translate-y-[0.05em]"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z" />
+      </svg>
     </button>
   )
 }
