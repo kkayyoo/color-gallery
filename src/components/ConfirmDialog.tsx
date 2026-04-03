@@ -3,11 +3,12 @@ import { useEffect, useRef } from 'react'
 
 interface Props {
   message: string
+  confirmLabel?: string
   onConfirm: () => void
   onCancel: () => void
 }
 
-export default function ConfirmDialog({ message, onConfirm, onCancel }: Props) {
+export default function ConfirmDialog({ message, confirmLabel = 'Remove', onConfirm, onCancel }: Props) {
   const cancelRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function ConfirmDialog({ message, onConfirm, onCancel }: Props) {
             onClick={onConfirm}
             className="px-4 py-2 text-sm bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors"
           >
-            Remove
+            {confirmLabel}
           </button>
         </div>
       </div>
