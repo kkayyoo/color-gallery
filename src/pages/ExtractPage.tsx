@@ -1,10 +1,11 @@
 // src/pages/ExtractPage.tsx
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useColorExtraction } from '../hooks/useColorExtraction'
 import { useCollection } from '../hooks/useCollection'
 import { exportCardAsPng } from '../lib/canvasExport'
 import ImageUploader from '../components/ImageUploader'
 import ColorCard from '../components/ColorCard'
+import ConfirmDialog from '../components/ConfirmDialog'
 import type { ColorCard as ColorCardType } from '../types'
 
 function generateId(): string {
@@ -21,6 +22,7 @@ export default function ExtractPage() {
   const [currentFile, setCurrentFile] = useState<File | null>(null)
   const [pendingCard, setPendingCard] = useState<ColorCardType | null>(null)
   const [saved, setSaved] = useState(false)
+  const [showRegenConfirm, setShowRegenConfirm] = useState(false)
 
   const handleFile = useCallback((file: File) => {
     setCurrentFile(file)
@@ -30,32 +32,35 @@ export default function ExtractPage() {
   }, [extract])
 
   // Build pending card when extraction completes
-  if (
-    (state.status === 'done' || state.status === 'naming') &&
-    !pendingCard &&
-    currentFile
-  ) {
-    setPendingCard({
-      id: generateId(),
-      createdAt: Date.now(),
-      name: fileNameWithoutExt(currentFile),
-      imageDataUrl: state.imageDataUrl,
-      colors: state.colors,
-      favorited: false,
-    })
-  }
+  useEffect(() => {
+    const s = state
+    if (
+      (s.status === 'done' || s.status === 'naming') &&
+      !pendingCard &&
+      currentFile
+    ) {
+      setPendingCard({
+        id: generateId(),
+        createdAt: Date.now(),
+        name: fileNameWithoutExt(currentFile),
+        imageDataUrl: s.imageDataUrl,
+        colors: s.colors,
+        favorited: false,
+      })
+    }
+  }, [state.status]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keep pending card colors in sync with naming progress
-  if (
-    state.status === 'naming' &&
-    pendingCard &&
-    state.colors !== pendingCard.colors
-  ) {
-    setPendingCard(prev => prev ? { ...prev, colors: state.colors } : prev)
-  }
+  // Keep pending card colors in sync with naming progress (fires on naming AND done)
+  useEffect(() => {
+    const s = state
+    if ((s.status === 'naming' || s.status === 'done') && pendingCard) {
+      setPendingCard(prev => prev ? { ...prev, colors: s.colors } : prev)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [(state as { colors?: unknown }).colors])
 
   function handleSave() {
-    if (!pendingCard) return
+    if (!pendingCard || saved) return
     addCard(pendingCard)
     setSaved(true)
   }
@@ -70,6 +75,13 @@ export default function ExtractPage() {
   function handleExport() {
     if (!pendingCard) return
     exportCardAsPng(pendingCard)
+  }
+
+  function handleRegenerate() {
+    if (!currentFile) return
+    setPendingCard(null)
+    setSaved(false)
+    extract(currentFile)
   }
 
   return (
@@ -118,12 +130,31 @@ export default function ExtractPage() {
               onRename={handleRename}
               saved={saved}
             />
-            <button
-              onClick={() => { reset(); setCurrentFile(null); setPendingCard(null); setSaved(false) }}
-              className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              Upload another image
-            </button>
+            <div className="flex items-center gap-4">
+              {state.status === 'done' && (
+                <button
+                  onClick={() => setShowRegenConfirm(true)}
+                  className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  Re-generate palette
+                </button>
+              )}
+              <button
+                onClick={() => { reset(); setCurrentFile(null); setPendingCard(null); setSaved(false) }}
+                className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                Upload another image
+              </button>
+            </div>
+            {showRegenConfirm && (
+              <ConfirmDialog
+                message="This will discard your unsaved palette. Continue?"
+                confirmLabel="Re-generate"
+                confirmVariant="primary"
+                onConfirm={() => { setShowRegenConfirm(false); handleRegenerate() }}
+                onCancel={() => setShowRegenConfirm(false)}
+              />
+            )}
           </div>
         )}
       </div>
