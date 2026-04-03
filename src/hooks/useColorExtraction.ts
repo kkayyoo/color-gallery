@@ -55,11 +55,24 @@ export function useColorExtraction() {
       // 2. Extract colors using colorthief v3 sync API
       // The image must be a fully-loaded HTMLImageElement
       const img = await dataUrlToImage(imageDataUrl)
-      const palette = getPaletteSync(img, { colorCount: 5 })
 
-      if (!palette || palette.length === 0) {
+      // Request a larger pool (20 colors) and randomly sample 5.
+      // getPaletteSync is deterministic for a given colorCount, so requesting
+      // more colors than needed and sampling randomly ensures re-generate
+      // produces a different palette each time.
+      const pool = getPaletteSync(img, { colorCount: 20 })
+
+      if (!pool || pool.length === 0) {
         throw new Error('Could not extract colors from image')
       }
+
+      // Fisher-Yates shuffle, then take first 5
+      const shuffled = [...pool]
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+      }
+      const palette = shuffled.slice(0, 5)
 
       const initialColors: ColorEntry[] = palette.map(color => {
         const { r, g, b } = color.rgb()
