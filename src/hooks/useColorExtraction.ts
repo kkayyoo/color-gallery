@@ -1,8 +1,8 @@
 // src/hooks/useColorExtraction.ts
 import { useState, useCallback } from 'react'
-import { getPaletteSync } from 'colorthief'
 import type { ColorEntry } from '../types'
-import { resizeImageFile, dataUrlToImage } from '../lib/imageResize'
+import { resizeImageFile } from '../lib/imageResize'
+import { extractDominantColors } from '../lib/colorExtraction'
 import { getColorName } from '../lib/colorNaming'
 
 export type ExtractionState =
@@ -31,10 +31,6 @@ function validateFile(file: File): string | null {
   return null
 }
 
-function rgbToHex(r: number, g: number, b: number): string {
-  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase()
-}
-
 export function useColorExtraction() {
   const [state, setState] = useState<ExtractionState>({ status: 'idle' })
 
@@ -52,38 +48,20 @@ export function useColorExtraction() {
       const imageDataUrl = await resizeImageFile(file)
       setState({ status: 'extracting', imageDataUrl })
 
-      // 2. Extract colors using colorthief v3 sync API
-      // The image must be a fully-loaded HTMLImageElement
-      const img = await dataUrlToImage(imageDataUrl)
+      // 2. Extract dominant colors using k-means clustering
+      const extracted = await extractDominantColors(imageDataUrl)
 
-      // Request a larger pool (20 colors) and randomly sample 5.
-      // getPaletteSync is deterministic for a given colorCount, so requesting
-      // more colors than needed and sampling randomly ensures re-generate
-      // produces a different palette each time.
-      const pool = getPaletteSync(img, { colorCount: 20 })
-
-      if (!pool || pool.length === 0) {
+      if (extracted.length === 0) {
         throw new Error('Could not extract colors from image')
       }
 
-      // Fisher-Yates shuffle, then take first 5
-      const shuffled = [...pool]
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-      }
-      const palette = shuffled.slice(0, 5)
-
-      const initialColors: ColorEntry[] = palette.map(color => {
-        const { r, g, b } = color.rgb()
-        return {
-          r,
-          g,
-          b,
-          hex: rgbToHex(r, g, b),
-          name: '…',
-        }
-      })
+      const initialColors: ColorEntry[] = extracted.map(({ r, g, b, hex }) => ({
+        r,
+        g,
+        b,
+        hex,
+        name: '…',
+      }))
 
       setState({ status: 'naming', imageDataUrl, colors: initialColors })
 
