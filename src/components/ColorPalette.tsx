@@ -26,33 +26,35 @@ export default function ColorPalette({ colors, loading = false }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex justify-end">
-        <div className="flex text-xs font-mono rounded-lg overflow-hidden border border-gray-700">
-          <button
-            onClick={() => toggleFormat('hex')}
-            className={`px-3 py-1 transition-colors ${
-              colorFormat === 'hex'
-                ? 'bg-gray-700 text-white'
-                : 'bg-transparent text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            HEX
-          </button>
-          <button
-            onClick={() => toggleFormat('rgb')}
-            className={`px-3 py-1 transition-colors ${
-              colorFormat === 'rgb'
-                ? 'bg-gray-700 text-white'
-                : 'bg-transparent text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            RGB
-          </button>
+      {colors.length > 0 && (
+        <div className="flex justify-end">
+          <div className="flex text-xs font-mono rounded-lg overflow-hidden border border-gray-700">
+            <button
+              onClick={() => toggleFormat('hex')}
+              className={`px-3 py-1 transition-colors ${
+                colorFormat === 'hex'
+                  ? 'bg-gray-700 text-white'
+                  : 'bg-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              HEX
+            </button>
+            <button
+              onClick={() => toggleFormat('rgb')}
+              className={`px-3 py-1 transition-colors ${
+                colorFormat === 'rgb'
+                  ? 'bg-gray-700 text-white'
+                  : 'bg-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              RGB
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {colors.map((color, i) => (
-        <div key={i} className="flex items-center gap-4">
+      {colors.map((color) => (
+        <div key={color.hex} className="flex items-center gap-4">
           <div
             className="w-10 h-10 rounded-lg flex-shrink-0 shadow-sm"
             style={{ backgroundColor: color.hex }}
