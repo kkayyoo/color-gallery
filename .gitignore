@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local planning/spec docs (not for repo)
+docs/superpowers/
