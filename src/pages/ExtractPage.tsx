@@ -50,14 +50,14 @@ export default function ExtractPage() {
     }
   }, [state.status]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keep pending card colors in sync with naming progress (fires on naming AND done)
+  // Keep pending card colors in sync with naming progress
+  const currentColors = (state.status === 'naming' || state.status === 'done') ? state.colors : null
   useEffect(() => {
-    const s = state
-    if ((s.status === 'naming' || s.status === 'done') && pendingCard) {
-      setPendingCard(prev => prev ? { ...prev, colors: s.colors } : prev)
+    if (currentColors && pendingCard) {
+      setPendingCard(prev => prev ? { ...prev, colors: currentColors } : prev)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [(state as { colors?: unknown }).colors])
+  }, [currentColors])
 
   function handleSave() {
     if (!pendingCard || saved) return
@@ -140,7 +140,7 @@ export default function ExtractPage() {
                 </button>
               )}
               <button
-                onClick={() => { reset(); setCurrentFile(null); setPendingCard(null); setSaved(false) }}
+                onClick={() => { reset(); setCurrentFile(null); setPendingCard(null); setSaved(false); setShowRegenConfirm(false) }}
                 className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
               >
                 Upload another image
