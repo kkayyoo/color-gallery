@@ -33,22 +33,19 @@ export default function ExtractPage() {
 
   // Build pending card when extraction completes
   useEffect(() => {
-    const s = state
-    if (
-      (s.status === 'done' || s.status === 'naming') &&
-      !pendingCard &&
-      currentFile
-    ) {
-      setPendingCard({
+    if ((state.status === 'done' || state.status === 'naming') && currentFile) {
+      const { imageDataUrl, colors } = state
+      setPendingCard(prev => prev ?? {
         id: generateId(),
         createdAt: Date.now(),
         name: fileNameWithoutExt(currentFile),
-        imageDataUrl: s.imageDataUrl,
-        colors: s.colors,
+        imageDataUrl,
+        colors,
         favorited: false,
       })
     }
-  }, [state.status]) // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status, (state as { imageDataUrl?: string }).imageDataUrl, (state as { colors?: unknown }).colors, currentFile])
 
   // Keep pending card colors in sync with naming progress
   const currentColors = (state.status === 'naming' || state.status === 'done') ? state.colors : null
@@ -148,7 +145,9 @@ export default function ExtractPage() {
             </div>
             {showRegenConfirm && (
               <ConfirmDialog
-                message="This will discard your unsaved palette. Continue?"
+                message={saved
+                  ? "The palette has already been saved. Re-generating will start a new extraction."
+                  : "This will discard your unsaved palette. Continue?"}
                 confirmLabel="Re-generate"
                 confirmVariant="primary"
                 onConfirm={() => { setShowRegenConfirm(false); handleRegenerate() }}
