@@ -25,3 +25,4 @@ dist-ssr
 
 # Local planning/spec docs (not for repo)
 docs/superpowers/
+.superpowers/
