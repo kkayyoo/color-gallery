@@ -208,12 +208,14 @@ export default function CarouselView({ cards }: Props) {
       {/* Arrow controls */}
       <button
         onClick={() => rotate(-1)}
+        aria-label="Previous card"
         className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-gray-900/80 hover:bg-gray-800 text-white rounded-full transition-colors z-10"
       >
         ←
       </button>
       <button
         onClick={() => rotate(1)}
+        aria-label="Next card"
         className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-gray-900/80 hover:bg-gray-800 text-white rounded-full transition-colors z-10"
       >
         →
