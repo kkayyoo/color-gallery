@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ColorEntry } from '../types'
+import { copyToClipboard } from '../lib/clipboard'
 
 const FORMAT_KEY = 'color-collection:color-format'
 
@@ -13,6 +14,7 @@ export default function ColorPalette({ colors, loading = false }: Props) {
     const stored = localStorage.getItem(FORMAT_KEY)
     return stored === 'rgb' ? 'rgb' : 'hex'
   })
+  const [copiedHex, setCopiedHex] = useState<string | null>(null)
 
   function toggleFormat(format: 'hex' | 'rgb') {
     setColorFormat(format)
@@ -24,17 +26,24 @@ export default function ColorPalette({ colors, loading = false }: Props) {
       ? color.hex
       : `rgb(${color.r}, ${color.g}, ${color.b})`
 
+  function handleCopy(color: ColorEntry) {
+    copyToClipboard(displayValue(color)).then(() => {
+      setCopiedHex(color.hex)
+      setTimeout(() => setCopiedHex(null), 1500)
+    }).catch(() => {})
+  }
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2.5">
       {colors.length > 0 && (
-        <div className="flex justify-end">
-          <div className="flex text-xs font-mono rounded-lg overflow-hidden border border-gray-700">
+        <div className="flex justify-end mb-1">
+          <div className="flex text-xs font-mono rounded-lg overflow-hidden border border-surface-border bg-surface">
             <button
               onClick={() => toggleFormat('hex')}
               className={`px-3 py-1 transition-colors ${
                 colorFormat === 'hex'
-                  ? 'bg-gray-700 text-white'
-                  : 'bg-transparent text-gray-500 hover:text-gray-300'
+                  ? 'bg-surface-overlay text-white'
+                  : 'text-white/30 hover:text-white/60'
               }`}
             >
               HEX
@@ -43,8 +52,8 @@ export default function ColorPalette({ colors, loading = false }: Props) {
               onClick={() => toggleFormat('rgb')}
               className={`px-3 py-1 transition-colors ${
                 colorFormat === 'rgb'
-                  ? 'bg-gray-700 text-white'
-                  : 'bg-transparent text-gray-500 hover:text-gray-300'
+                  ? 'bg-surface-overlay text-white'
+                  : 'text-white/30 hover:text-white/60'
               }`}
             >
               RGB
@@ -53,25 +62,44 @@ export default function ColorPalette({ colors, loading = false }: Props) {
         </div>
       )}
 
-      {colors.map((color) => (
-        <div key={color.hex} className="flex items-center gap-4">
+      {colors.map((color, i) => (
+        <div
+          key={i}
+          className="group flex items-center gap-3 p-2 rounded-xl transition-colors hover:bg-surface-raised/50 cursor-pointer"
+          onClick={() => handleCopy(color)}
+          title={`Copy ${displayValue(color)}`}
+        >
+          {/* Swatch — larger, with glow */}
           <div
-            className="w-10 h-10 rounded-lg flex-shrink-0 shadow-sm"
-            style={{ backgroundColor: color.hex }}
+            className="w-12 h-12 rounded-xl flex-shrink-0 transition-transform group-hover:scale-105"
+            style={{
+              backgroundColor: color.hex,
+              boxShadow: `0 4px 12px ${color.hex}66`,
+            }}
           />
-          <div className="flex flex-col min-w-0">
-            <span className={`text-sm font-medium text-white ${loading && color.name === '…' ? 'animate-pulse' : ''}`}>
+
+          {/* Name + value */}
+          <div className="flex flex-col min-w-0 flex-1">
+            <span
+              className={`text-sm font-medium text-white leading-tight ${
+                loading && color.name === '…' ? 'animate-pulse-soft' : ''
+              }`}
+            >
               {color.name}
             </span>
-            <span className="text-xs font-mono text-gray-400">{displayValue(color)}</span>
+            <span className="text-xs font-mono text-white/40 mt-0.5">{displayValue(color)}</span>
           </div>
-          <button
-            onClick={() => navigator.clipboard?.writeText(displayValue(color)).catch(() => {})}
-            className="ml-auto text-xs text-gray-600 hover:text-gray-300 transition-colors flex-shrink-0"
-            title={`Copy ${colorFormat.toUpperCase()}`}
-          >
-            copy
-          </button>
+
+          {/* Copy indicator */}
+          <div className="flex-shrink-0 w-8 text-right">
+            {copiedHex === color.hex ? (
+              <span className="text-[10px] text-brand-bright font-mono">✓</span>
+            ) : (
+              <span className="text-[10px] text-white/20 group-hover:text-white/50 font-mono transition-colors">
+                copy
+              </span>
+            )}
+          </div>
         </div>
       ))}
     </div>

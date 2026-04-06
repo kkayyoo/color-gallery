@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { FocusTrap } from 'focus-trap-react'
 import type { ColorEntry } from '../types'
 import { EXPORT_FORMATS } from '../lib/exportFormats'
+import { copyToClipboard } from '../lib/clipboard'
 
 interface Props {
   cardName: string
@@ -12,32 +13,25 @@ interface Props {
 export default function ExportPanel({ cardName, colors, onClose }: Props) {
   const [activeId, setActiveId] = useState(EXPORT_FORMATS[0].id)
   const [copied, setCopied] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const activeFormat = EXPORT_FORMATS.find(f => f.id === activeId)!
   const code = activeFormat.render(cardName, colors)
 
-  // Close on Escape
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose()
+      }
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    // capture: true so this fires before bubble-phase listeners (e.g. ConfirmDialog)
+    // and stopPropagation prevents the event reaching ConfirmDialog's handler
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
   }, [onClose])
 
   function handleCopy() {
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(code).then(() => flash())
-    } else {
-      // Fallback for browsers without clipboard API
-      if (textareaRef.current) {
-        textareaRef.current.value = code
-        textareaRef.current.select()
-        document.execCommand('copy')
-        flash()
-      }
-    }
+    copyToClipboard(code).then(() => flash()).catch(() => {})
   }
 
   function flash() {
@@ -47,24 +41,25 @@ export default function ExportPanel({ cardName, colors, onClose }: Props) {
 
   return (
     <FocusTrap>
-      {/* Overlay */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
         onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
       >
-        {/* Panel */}
         <div
-          className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col"
+          className="bg-surface rounded-2xl w-full max-w-lg shadow-modal border border-surface-border flex flex-col animate-slide-up"
           role="dialog"
           aria-modal="true"
           aria-label={`Export code for ${cardName}`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-800">
-            <h2 className="text-sm font-semibold text-white">Export Code</h2>
+          <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-surface-border">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono text-white/30">{'</>'}</span>
+              <h2 className="text-sm font-semibold text-white">Export Code</h2>
+            </div>
             <button
               onClick={onClose}
-              className="p-1 text-gray-500 hover:text-white transition-colors rounded"
+              className="p-1.5 text-white/30 hover:text-white transition-colors rounded-lg hover:bg-surface-raised"
               aria-label="Close"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,11 +74,15 @@ export default function ExportPanel({ cardName, colors, onClose }: Props) {
               <button
                 key={fmt.id}
                 onClick={() => { setActiveId(fmt.id); setCopied(false) }}
-                className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                   activeId === fmt.id
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:text-white'
+                    ? 'text-white'
+                    : 'bg-surface-raised text-white/40 hover:text-white/70'
                 }`}
+                style={activeId === fmt.id ? {
+                  background: 'linear-gradient(135deg, #6366f1, #7c3aed)',
+                  boxShadow: '0 2px 8px rgba(99,102,241,0.35)',
+                } : undefined}
               >
                 {fmt.label}
               </button>
@@ -92,26 +91,24 @@ export default function ExportPanel({ cardName, colors, onClose }: Props) {
 
           {/* Code block */}
           <div className="relative mx-5 mt-3 mb-5">
-            <pre className="bg-gray-950 rounded-xl p-4 text-xs text-gray-300 font-mono overflow-auto max-h-64 whitespace-pre">
+            <pre className="bg-canvas rounded-xl p-4 text-xs text-white/60 font-mono overflow-auto max-h-64 whitespace-pre border border-surface-border">
               {code}
             </pre>
             <button
               onClick={handleCopy}
-              className="absolute top-2 right-2 px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded-lg transition-colors"
+              className="absolute top-2.5 right-2.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all"
+              style={copied ? {
+                background: 'rgba(99,102,241,0.2)',
+                color: '#818cf8',
+              } : {
+                background: 'rgba(255,255,255,0.06)',
+                color: 'rgba(255,255,255,0.5)',
+              }}
             >
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? 'Copied ✓' : 'Copy'}
             </button>
           </div>
         </div>
-
-        {/* Hidden textarea for clipboard fallback */}
-        <textarea
-          ref={textareaRef}
-          aria-hidden="true"
-          className="fixed -left-[9999px]"
-          readOnly
-          tabIndex={-1}
-        />
       </div>
     </FocusTrap>
   )

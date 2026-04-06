@@ -2,7 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --canvas: #080810;
+  --surface: #13131f;
+  --surface-raised: #1a1a2a;
+  --brand: #6366f1;
+  --brand-violet: #7c3aed;
+}
+
 html, body, #root {
-  background-color: #030712; /* gray-950 */
+  background-color: var(--canvas);
   min-height: 100vh;
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Animated gradient border for uploader */
+
+/* Firefox fallback: animate via CSS rotate property (supported FF 108+) */
+@keyframes borderSpin {
+  from { rotate: 0deg; }
+  to   { rotate: 360deg; }
+}
+
+.gradient-border-animated {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Default (Firefox): static diagonal gradient, spinning via rotate */
+.gradient-border-animated::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #6366f1, #7c3aed, #a78bfa, #6366f1);
+  animation: borderSpin 3s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Chromium/Safari: use @property + conic-gradient for smooth angular animation */
+@supports (background: conic-gradient(from 1turn, red, red)) {
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes borderRotate {
+    from { --angle: 0deg; }
+    to   { --angle: 360deg; }
+  }
+
+  .gradient-border-animated::before {
+    background: conic-gradient(from var(--angle), #6366f1, #7c3aed, #a78bfa, #6366f1);
+    animation: borderRotate 3s linear infinite;
+    rotate: unset;
+  }
 }

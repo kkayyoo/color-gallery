@@ -31,21 +31,25 @@ export default function ImageUploader({ onFile }: Props) {
     <div
       onDragOver={e => { e.preventDefault(); setDragging(true) }}
       onDragLeave={e => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-            setDragging(false)
-          }
-        }}
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setDragging(false)
+        }
+      }}
       onDrop={handleDrop}
       onClick={() => inputRef.current?.click()}
       className={`
-        flex flex-col items-center justify-center gap-3 
-        border-2 border-dashed rounded-2xl p-16 cursor-pointer
-        transition-colors select-none
-        ${dragging
-          ? 'border-indigo-400 bg-indigo-950/30'
-          : 'border-gray-700 hover:border-gray-500 bg-gray-900/50'
-        }
+        relative flex flex-col items-center justify-center gap-4
+        rounded-2xl p-16 cursor-pointer select-none
+        transition-all duration-300
+        ${dragging ? 'gradient-border-animated scale-[1.01]' : ''}
       `}
+      style={{
+        background: dragging
+          ? 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(124,58,237,0.08))'
+          : 'rgba(19,19,31,0.8)',
+        border: dragging ? 'none' : '2px dashed rgba(255,255,255,0.1)',
+        boxShadow: dragging ? '0 0 40px rgba(99,102,241,0.15)' : 'none',
+      }}
     >
       <input
         ref={inputRef}
@@ -54,14 +58,30 @@ export default function ImageUploader({ onFile }: Props) {
         className="hidden"
         onChange={handleChange}
       />
-      <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-      </svg>
-      <p className="text-gray-400 text-sm text-center">
-        Drag & drop an image here, or <span className="text-indigo-400">click to browse</span>
-      </p>
-      <p className="text-gray-600 text-xs">JPG, PNG, WebP · Max 20MB</p>
+
+      {/* Upload icon */}
+      <div
+        className={`p-4 rounded-2xl transition-all duration-300 ${
+          dragging
+            ? 'bg-brand/20 text-brand-bright'
+            : 'bg-surface-raised text-white/30'
+        }`}
+      >
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+        </svg>
+      </div>
+
+      <div className="text-center space-y-1">
+        <p className="text-white/70 text-sm font-medium">
+          Drop an image here, or{' '}
+          <span className="text-brand-bright hover:text-brand-violet-bright transition-colors">
+            click to browse
+          </span>
+        </p>
+        <p className="text-white/25 text-xs font-mono">JPG · PNG · WebP · Max 20MB</p>
+      </div>
     </div>
   )
 }

@@ -17,38 +17,41 @@ export default function ConfirmDialog({ message, confirmLabel = 'Remove', confir
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onCancel()
     }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
+    document.addEventListener('keydown', handler, { capture: false })
+    return () => document.removeEventListener('keydown', handler, { capture: false })
   }, [onCancel])
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm"
       onClick={e => { if (e.target === e.currentTarget) onCancel() }}
-      aria-hidden="false"
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Confirm action"
-        className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl"
+        className="bg-surface border border-surface-border rounded-2xl p-6 max-w-sm w-full mx-4 shadow-modal animate-slide-up"
       >
-        <p className="text-white text-sm mb-6">{message}</p>
-        <div className="flex gap-3 justify-end">
+        <p className="text-white/80 text-sm mb-6 leading-relaxed">{message}</p>
+        <div className="flex gap-2 justify-end">
           <button
             ref={cancelRef}
             onClick={onCancel}
-            className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-white/40 hover:text-white transition-colors rounded-xl hover:bg-surface-raised"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm text-white rounded-lg transition-colors ${
-              confirmVariant === 'primary'
-                ? 'bg-blue-600 hover:bg-blue-500'
-                : 'bg-red-600 hover:bg-red-500'
-            }`}
+            className="px-4 py-2 text-sm text-white rounded-xl transition-all font-medium"
+            style={confirmVariant === 'primary' ? {
+              background: 'linear-gradient(135deg, #6366f1, #7c3aed)',
+              boxShadow: '0 4px 14px rgba(99,102,241,0.3)',
+            } : {
+              background: 'rgba(244,63,94,0.2)',
+              color: '#fb7185',
+              border: '1px solid rgba(244,63,94,0.3)',
+            }}
           >
             {confirmLabel}
           </button>

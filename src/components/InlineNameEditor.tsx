@@ -43,7 +43,7 @@ export default function InlineNameEditor({ value, onSave, className = '' }: Prop
           if (e.key === 'Enter') commit()
           if (e.key === 'Escape') { setDraft(value); setEditing(false) }
         }}
-        className={`bg-transparent border-b border-gray-400 outline-none text-white ${className}`}
+        className={`bg-transparent border-b border-white/20 outline-none text-white focus:border-brand ${className}`}
       />
     )
   }
@@ -51,12 +51,12 @@ export default function InlineNameEditor({ value, onSave, className = '' }: Prop
   return (
     <button
       onClick={() => { setDraft(value); setEditing(true) }}
-      className={`inline-flex items-baseline gap-2 text-left ${className}`}
+      className={`group inline-flex items-baseline gap-1.5 text-left ${className}`}
       title="Click to rename"
     >
-      <span className="hover:underline decoration-dotted underline-offset-2 leading-none">{value}</span>
+      <span className="hover:text-brand-bright transition-colors leading-none">{value}</span>
       <svg
-        className="w-[0.9em] h-[0.9em] text-gray-400 flex-shrink-0 translate-y-[0.05em]"
+        className="w-[0.75em] h-[0.75em] text-white/20 group-hover:text-brand-bright flex-shrink-0 translate-y-[0.05em] transition-colors"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
