@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import type { ColorCard as ColorCardType } from '../types'
 import ColorPalette from './ColorPalette'
 import InlineNameEditor from './InlineNameEditor'
+import ExportPanel from './ExportPanel'
 
 interface BaseProps {
   card: ColorCardType
@@ -25,9 +27,17 @@ type Props = ExtractProps | GalleryProps
 
 export default function ColorCard(props: Props) {
   const { card, loading, onExport, onRename } = props
+  const [showExportCode, setShowExportCode] = useState(false)
 
   return (
     <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+      {showExportCode && (
+        <ExportPanel
+          cardName={card.name}
+          colors={card.colors}
+          onClose={() => setShowExportCode(false)}
+        />
+      )}
       {/* Name */}
       <div className="mb-4">
         <InlineNameEditor
@@ -67,9 +77,17 @@ export default function ColorCard(props: Props) {
             </button>
             <button
               onClick={onExport}
-              className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors"
+              disabled={loading}
+              className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
             >
               Export PNG
+            </button>
+            <button
+              onClick={() => setShowExportCode(true)}
+              disabled={loading}
+              className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+            >
+              Export Code
             </button>
             {props.saved && (
               <a href="/gallery" className="ml-auto text-sm text-indigo-400 hover:text-indigo-300">
@@ -93,6 +111,12 @@ export default function ColorCard(props: Props) {
               className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg transition-colors"
             >
               Export PNG
+            </button>
+            <button
+              onClick={() => setShowExportCode(true)}
+              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg transition-colors"
+            >
+              Export Code
             </button>
             <button
               onClick={props.onDelete}

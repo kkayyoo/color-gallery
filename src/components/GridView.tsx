@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import type { ColorCard } from '../types'
 import InlineNameEditor from './InlineNameEditor'
 import ConfirmDialog from './ConfirmDialog'
+import ExportPanel from './ExportPanel'
 import { exportCardAsPng } from '../lib/canvasExport'
 
 interface Props {
@@ -14,6 +15,9 @@ interface Props {
 
 export default function GridView({ cards, onFavorite, onDelete, onRename }: Props) {
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [exportCodeId, setExportCodeId] = useState<string | null>(null)
+
+  const exportingCard = exportCodeId ? cards.find(c => c.id === exportCodeId) : null
 
   if (cards.length === 0) {
     return (
@@ -33,6 +37,14 @@ export default function GridView({ cards, onFavorite, onDelete, onRename }: Prop
           message="Remove this card from your collection?"
           onConfirm={() => { onDelete(confirmId); setConfirmId(null) }}
           onCancel={() => setConfirmId(null)}
+        />
+      )}
+
+      {exportingCard && (
+        <ExportPanel
+          cardName={exportingCard.name}
+          colors={exportingCard.colors}
+          onClose={() => setExportCodeId(null)}
         />
       )}
 
@@ -83,7 +95,13 @@ export default function GridView({ cards, onFavorite, onDelete, onRename }: Prop
                   onClick={() => exportCardAsPng(card)}
                   className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded transition-colors"
                 >
-                  Export
+                  Export PNG
+                </button>
+                <button
+                  onClick={() => setExportCodeId(card.id)}
+                  className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded transition-colors"
+                >
+                  Export Code
                 </button>
                 <button
                   onClick={() => setConfirmId(card.id)}
