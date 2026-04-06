@@ -54,7 +54,7 @@ export default function InlineNameEditor({ value, onSave, className = '' }: Prop
       className={`group inline-flex items-baseline gap-1.5 text-left ${className}`}
       title="Click to rename"
     >
-      <span className="hover:text-brand-bright transition-colors leading-none">{value}</span>
+      <span className="text-primary hover:text-brand-bright transition-colors leading-none">{value}</span>
       <svg
         className="w-[0.75em] h-[0.75em] text-faint group-hover:text-brand-bright flex-shrink-0 translate-y-[0.05em] transition-colors"
         fill="none"
