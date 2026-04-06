@@ -43,7 +43,7 @@ export default function InlineNameEditor({ value, onSave, className = '' }: Prop
           if (e.key === 'Enter') commit()
           if (e.key === 'Escape') { setDraft(value); setEditing(false) }
         }}
-        className={`bg-transparent border-b border-white/20 outline-none text-white focus:border-brand ${className}`}
+        className={`bg-transparent border-b border-[var(--surface-border-strong)] outline-none text-primary focus:border-brand ${className}`}
       />
     )
   }
@@ -56,7 +56,7 @@ export default function InlineNameEditor({ value, onSave, className = '' }: Prop
     >
       <span className="hover:text-brand-bright transition-colors leading-none">{value}</span>
       <svg
-        className="w-[0.75em] h-[0.75em] text-white/20 group-hover:text-brand-bright flex-shrink-0 translate-y-[0.05em] transition-colors"
+        className="w-[0.75em] h-[0.75em] text-faint group-hover:text-brand-bright flex-shrink-0 translate-y-[0.05em] transition-colors"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

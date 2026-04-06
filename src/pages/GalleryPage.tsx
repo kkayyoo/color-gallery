@@ -64,7 +64,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <main className="min-h-screen bg-canvas text-white">
+    <main className="min-h-screen bg-canvas text-primary">
       {storageWarning && (
         <div className="bg-amber-900/30 border-b border-amber-700/50 px-8 py-3 text-sm text-amber-300/80">
           Storage is nearly full (over 4MB). Export your collection and delete old cards to free space.
@@ -75,7 +75,7 @@ export default function GalleryPage() {
       <div
         className="pointer-events-none fixed inset-0 z-0"
         style={{
-          background: 'radial-gradient(ellipse 80% 30% at 50% -5%, rgba(124,58,237,0.10), transparent)',
+          background: 'var(--radial-bg-gallery)',
         }}
       />
 
@@ -91,20 +91,20 @@ export default function GalleryPage() {
                 My Collection
               </span>
             </h1>
-            <p className="text-white/30 text-sm">{cards.length} palette{cards.length !== 1 ? 's' : ''} saved</p>
+            <p className="text-muted text-sm">{cards.length} palette{cards.length !== 1 ? 's' : ''} saved</p>
           </div>
 
           {/* Export / Import */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => exportJson(cards)}
-              className="px-3 py-1.5 text-xs font-medium text-white/50 hover:text-white bg-surface-raised hover:bg-surface-overlay rounded-xl transition-all border border-surface-border"
+              className="px-3 py-1.5 text-xs font-medium text-secondary hover:text-primary bg-surface-raised hover:bg-surface-overlay rounded-xl transition-all border border-surface-border"
             >
               Export JSON
             </button>
             <button
               onClick={() => importInputRef.current?.click()}
-              className="px-3 py-1.5 text-xs font-medium text-white/50 hover:text-white bg-surface-raised hover:bg-surface-overlay rounded-xl transition-all border border-surface-border"
+              className="px-3 py-1.5 text-xs font-medium text-secondary hover:text-primary bg-surface-raised hover:bg-surface-overlay rounded-xl transition-all border border-surface-border"
             >
               Import JSON
             </button>
@@ -132,21 +132,21 @@ export default function GalleryPage() {
               onClick={() => setTab('all')}
               className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
                 tab === 'all'
-                  ? 'bg-surface-overlay text-white'
-                  : 'text-white/35 hover:text-white/70'
+                  ? 'bg-surface-overlay text-primary'
+                  : 'text-muted hover:text-secondary'
               }`}
             >
-              All <span className="text-white/30 ml-1 font-mono text-xs">{cards.length}</span>
+              All <span className="text-faint ml-1 font-mono text-xs">{cards.length}</span>
             </button>
             <button
               onClick={() => setTab('favorites')}
               className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
                 tab === 'favorites'
-                  ? 'bg-surface-overlay text-white'
-                  : 'text-white/35 hover:text-white/70'
+                  ? 'bg-surface-overlay text-primary'
+                  : 'text-muted hover:text-secondary'
               }`}
             >
-              Favorites <span className="text-white/30 ml-1 font-mono text-xs">{favorites.length}</span>
+              Favorites <span className="text-faint ml-1 font-mono text-xs">{favorites.length}</span>
             </button>
           </div>
 
@@ -156,8 +156,8 @@ export default function GalleryPage() {
               onClick={() => setViewMode('grid')}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
                 viewMode === 'grid'
-                  ? 'bg-surface-overlay text-white'
-                  : 'text-white/35 hover:text-white/70'
+                  ? 'bg-surface-overlay text-primary'
+                  : 'text-muted hover:text-secondary'
               }`}
             >
               Grid
@@ -166,8 +166,8 @@ export default function GalleryPage() {
               onClick={() => setViewMode('carousel')}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
                 viewMode === 'carousel'
-                  ? 'bg-surface-overlay text-white'
-                  : 'text-white/35 hover:text-white/70'
+                  ? 'bg-surface-overlay text-primary'
+                  : 'text-muted hover:text-secondary'
               }`}
             >
               3D Carousel
@@ -187,12 +187,12 @@ export default function GalleryPage() {
           <div
             className="w-full h-[600px] rounded-2xl overflow-hidden border border-surface-border"
             style={{
-              background: 'linear-gradient(180deg, #13131f 0%, #080810 100%)',
+              background: 'var(--carousel-bg)',
               boxShadow: '0 0 60px rgba(99,102,241,0.08)',
             }}
           >
             {displayed.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-white/25 text-sm">
+              <div className="flex items-center justify-center h-full text-faint text-sm">
                 {tab === 'favorites' ? 'No favorites yet. Heart some cards in Grid view.' : 'No cards yet.'}
               </div>
             ) : (

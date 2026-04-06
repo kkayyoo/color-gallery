@@ -42,8 +42,8 @@ export default function ColorPalette({ colors, loading = false }: Props) {
               onClick={() => toggleFormat('hex')}
               className={`px-3 py-1 transition-colors ${
                 colorFormat === 'hex'
-                  ? 'bg-surface-overlay text-white'
-                  : 'text-white/30 hover:text-white/60'
+                  ? 'bg-surface-overlay text-primary'
+                  : 'text-muted hover:text-secondary'
               }`}
             >
               HEX
@@ -52,8 +52,8 @@ export default function ColorPalette({ colors, loading = false }: Props) {
               onClick={() => toggleFormat('rgb')}
               className={`px-3 py-1 transition-colors ${
                 colorFormat === 'rgb'
-                  ? 'bg-surface-overlay text-white'
-                  : 'text-white/30 hover:text-white/60'
+                  ? 'bg-surface-overlay text-primary'
+                  : 'text-muted hover:text-secondary'
               }`}
             >
               RGB
@@ -81,13 +81,13 @@ export default function ColorPalette({ colors, loading = false }: Props) {
           {/* Name + value */}
           <div className="flex flex-col min-w-0 flex-1">
             <span
-              className={`text-sm font-medium text-white leading-tight ${
+              className={`text-sm font-medium text-primary leading-tight ${
                 loading && color.name === '…' ? 'animate-pulse-soft' : ''
               }`}
             >
               {color.name}
             </span>
-            <span className="text-xs font-mono text-white/40 mt-0.5">{displayValue(color)}</span>
+            <span className="text-xs font-mono text-muted mt-0.5">{displayValue(color)}</span>
           </div>
 
           {/* Copy indicator */}
@@ -95,7 +95,7 @@ export default function ColorPalette({ colors, loading = false }: Props) {
             {copiedHex === color.hex ? (
               <span className="text-[10px] text-brand-bright font-mono">✓</span>
             ) : (
-              <span className="text-[10px] text-white/20 group-hover:text-white/50 font-mono transition-colors">
+              <span className="text-[10px] text-faint group-hover:text-secondary font-mono transition-colors">
                 copy
               </span>
             )}

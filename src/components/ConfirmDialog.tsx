@@ -32,12 +32,12 @@ export default function ConfirmDialog({ message, confirmLabel = 'Remove', confir
         aria-label="Confirm action"
         className="bg-surface border border-surface-border rounded-2xl p-6 max-w-sm w-full mx-4 shadow-modal animate-slide-up"
       >
-        <p className="text-white/80 text-sm mb-6 leading-relaxed">{message}</p>
+        <p className="text-secondary text-sm mb-6 leading-relaxed">{message}</p>
         <div className="flex gap-2 justify-end">
           <button
             ref={cancelRef}
             onClick={onCancel}
-            className="px-4 py-2 text-sm text-white/40 hover:text-white transition-colors rounded-xl hover:bg-surface-raised"
+            className="px-4 py-2 text-sm text-muted hover:text-primary transition-colors rounded-xl hover:bg-surface-raised"
           >
             Cancel
           </button>

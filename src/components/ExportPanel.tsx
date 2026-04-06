@@ -54,12 +54,12 @@ export default function ExportPanel({ cardName, colors, onClose }: Props) {
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-surface-border">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-white/30">{'</>'}</span>
-              <h2 className="text-sm font-semibold text-white">Export Code</h2>
+              <span className="text-xs font-mono text-muted">{'</>'}</span>
+              <h2 className="text-sm font-semibold text-primary">Export Code</h2>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-white/30 hover:text-white transition-colors rounded-lg hover:bg-surface-raised"
+              className="p-1.5 text-muted hover:text-primary transition-colors rounded-lg hover:bg-surface-raised"
               aria-label="Close"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,8 +76,8 @@ export default function ExportPanel({ cardName, colors, onClose }: Props) {
                 onClick={() => { setActiveId(fmt.id); setCopied(false) }}
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                   activeId === fmt.id
-                    ? 'text-white'
-                    : 'bg-surface-raised text-white/40 hover:text-white/70'
+                    ? 'text-primary'
+                    : 'bg-surface-raised text-muted hover:text-secondary'
                 }`}
                 style={activeId === fmt.id ? {
                   background: 'linear-gradient(135deg, #6366f1, #7c3aed)',
@@ -91,7 +91,7 @@ export default function ExportPanel({ cardName, colors, onClose }: Props) {
 
           {/* Code block */}
           <div className="relative mx-5 mt-3 mb-5">
-            <pre className="bg-canvas rounded-xl p-4 text-xs text-white/60 font-mono overflow-auto max-h-64 whitespace-pre border border-surface-border">
+            <pre className="bg-canvas rounded-xl p-4 text-xs text-secondary font-mono overflow-auto max-h-64 whitespace-pre border border-surface-border">
               {code}
             </pre>
             <button
@@ -101,8 +101,8 @@ export default function ExportPanel({ cardName, colors, onClose }: Props) {
                 background: 'rgba(99,102,241,0.2)',
                 color: '#818cf8',
               } : {
-                background: 'rgba(255,255,255,0.06)',
-                color: 'rgba(255,255,255,0.5)',
+                background: 'var(--surface-raised)',
+                color: 'var(--text-secondary)',
               }}
             >
               {copied ? 'Copied ✓' : 'Copy'}

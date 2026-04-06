@@ -52,7 +52,7 @@ export default function ColorCard(props: Props) {
           <InlineNameEditor
             value={card.name}
             onSave={onRename}
-            className="text-lg font-semibold text-white"
+            className="text-lg font-semibold text-primary"
           />
         </div>
 
@@ -80,7 +80,7 @@ export default function ColorCard(props: Props) {
               <button
                 onClick={props.onSave}
                 disabled={props.saved}
-                className="px-4 py-2 text-sm font-medium rounded-xl transition-all disabled:opacity-40 disabled:cursor-default text-white"
+                className="px-4 py-2 text-sm font-medium rounded-xl transition-all disabled:opacity-40 disabled:cursor-default text-primary"
                 style={{
                   background: props.saved ? 'rgba(99,102,241,0.2)' : 'linear-gradient(135deg, #6366f1, #7c3aed)',
                   boxShadow: props.saved ? 'none' : '0 4px 14px rgba(99,102,241,0.35)',
@@ -91,14 +91,14 @@ export default function ColorCard(props: Props) {
               <button
                 onClick={onExport}
                 disabled={loading}
-                className="px-3 py-2 text-sm text-white/60 hover:text-white bg-surface-raised hover:bg-surface-overlay rounded-xl transition-all disabled:opacity-40 border border-surface-border"
+                className="px-3 py-2 text-sm text-secondary hover:text-primary bg-surface-raised hover:bg-surface-overlay rounded-xl transition-all disabled:opacity-40 border border-surface-border"
               >
                 Export PNG
               </button>
               <button
                 onClick={() => setShowExportCode(true)}
                 disabled={loading}
-                className="px-3 py-2 text-sm text-white/60 hover:text-white bg-surface-raised hover:bg-surface-overlay rounded-xl transition-all disabled:opacity-40 border border-surface-border"
+                className="px-3 py-2 text-sm text-secondary hover:text-primary bg-surface-raised hover:bg-surface-overlay rounded-xl transition-all disabled:opacity-40 border border-surface-border"
               >
                 {'</>'}
               </button>
@@ -124,19 +124,19 @@ export default function ColorCard(props: Props) {
               </button>
               <button
                 onClick={onExport}
-                className="px-3 py-1.5 text-xs text-white/50 hover:text-white bg-surface-raised hover:bg-surface-overlay rounded-lg transition-all border border-surface-border"
+                className="px-3 py-1.5 text-xs text-secondary hover:text-primary bg-surface-raised hover:bg-surface-overlay rounded-lg transition-all border border-surface-border"
               >
                 Export PNG
               </button>
               <button
                 onClick={() => setShowExportCode(true)}
-                className="px-3 py-1.5 text-xs text-white/50 hover:text-white bg-surface-raised hover:bg-surface-overlay rounded-lg transition-all border border-surface-border"
+                className="px-3 py-1.5 text-xs text-secondary hover:text-primary bg-surface-raised hover:bg-surface-overlay rounded-lg transition-all border border-surface-border"
               >
                 {'</>'}
               </button>
               <button
                 onClick={props.onDelete}
-                className="ml-auto p-1.5 text-white/20 hover:text-accent-rose transition-colors"
+                className="ml-auto p-1.5 text-faint hover:text-accent-rose transition-colors"
                 title="Delete"
                 aria-label="Delete card"
               >

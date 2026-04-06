@@ -80,7 +80,7 @@ export default function ExtractPage() {
   }
 
   return (
-    <main className="min-h-screen bg-canvas text-white">
+    <main className="min-h-screen bg-canvas text-primary">
       {storageWarning && (
         <div className="bg-amber-900/30 border-b border-amber-700/50 px-8 py-3 text-sm text-amber-300/80">
           Storage is nearly full (over 4MB). Consider exporting and deleting old cards.
@@ -91,7 +91,7 @@ export default function ExtractPage() {
       <div
         className="pointer-events-none fixed inset-0 z-0"
         style={{
-          background: 'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(99,102,241,0.12), transparent)',
+          background: 'var(--radial-bg-extract)',
         }}
       />
 
@@ -106,7 +106,7 @@ export default function ExtractPage() {
               Extract Colors
             </span>
           </h1>
-          <p className="text-white/40 text-sm">
+          <p className="text-muted text-sm">
             Upload an image to extract its 5 dominant colors.
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function ExtractPage() {
             </div>
             <button
               onClick={reset}
-              className="text-sm text-white/30 hover:text-white transition-colors"
+              className="text-sm text-muted hover:text-primary transition-colors"
             >
               Try again
             </button>
@@ -131,7 +131,7 @@ export default function ExtractPage() {
 
         {(state.status === 'resizing' || state.status === 'extracting') && (
           <div className="flex items-center justify-center py-24">
-            <div className="flex items-center gap-3 text-white/40 text-sm">
+              <div className="flex items-center gap-3 text-muted text-sm">
               <div className="w-4 h-4 border-2 border-brand/40 border-t-brand rounded-full animate-spin" />
               Processing image…
             </div>
@@ -153,14 +153,14 @@ export default function ExtractPage() {
               {state.status === 'done' && (
                 <button
                   onClick={() => setShowRegenConfirm(true)}
-                  className="text-sm text-white/25 hover:text-white/60 transition-colors"
+                  className="text-sm text-faint hover:text-secondary transition-colors"
                 >
                   Re-generate palette
                 </button>
               )}
               <button
                 onClick={() => { reset(); setCurrentFile(null); setPendingCard(null); setSaved(false); setShowRegenConfirm(false) }}
-                className="text-sm text-white/25 hover:text-white/60 transition-colors"
+                className="text-sm text-faint hover:text-secondary transition-colors"
               >
                 Upload another image
               </button>

@@ -44,10 +44,8 @@ export default function ImageUploader({ onFile }: Props) {
         ${dragging ? 'gradient-border-animated scale-[1.01]' : ''}
       `}
       style={{
-        background: dragging
-          ? 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(124,58,237,0.08))'
-          : 'rgba(19,19,31,0.8)',
-        border: dragging ? 'none' : '2px dashed rgba(255,255,255,0.1)',
+        background: dragging ? 'var(--uploader-drag-bg)' : 'var(--uploader-bg)',
+        border: dragging ? 'none' : '2px dashed var(--uploader-border)',
         boxShadow: dragging ? '0 0 40px rgba(99,102,241,0.15)' : 'none',
       }}
     >
@@ -64,7 +62,7 @@ export default function ImageUploader({ onFile }: Props) {
         className={`p-4 rounded-2xl transition-all duration-300 ${
           dragging
             ? 'bg-brand/20 text-brand-bright'
-            : 'bg-surface-raised text-white/30'
+            : 'bg-surface-raised text-faint'
         }`}
       >
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,13 +72,13 @@ export default function ImageUploader({ onFile }: Props) {
       </div>
 
       <div className="text-center space-y-1">
-        <p className="text-white/70 text-sm font-medium">
+        <p className="text-secondary text-sm font-medium">
           Drop an image here, or{' '}
           <span className="text-brand-bright hover:text-brand-violet-bright transition-colors">
             click to browse
           </span>
         </p>
-        <p className="text-white/25 text-xs font-mono">JPG · PNG · WebP · Max 20MB</p>
+        <p className="text-faint text-xs font-mono">JPG · PNG · WebP · Max 20MB</p>
       </div>
     </div>
   )
