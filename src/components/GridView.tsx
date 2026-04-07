@@ -142,7 +142,7 @@ export default function GridView({ cards, onFavorite, onDelete, onRename }: Prop
                 </button>
                 <button
                   onClick={() => setConfirmId(card.id)}
-                  className="ml-auto p-1 text-faint hover:text-accent-rose opacity-0 group-hover:opacity-100 transition-all"
+                  className="ml-auto p-1 text-faint hover:text-accent-rose opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                   title="Delete"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
