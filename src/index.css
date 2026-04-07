@@ -86,8 +86,11 @@ html, body, #root {
   color: var(--text-primary);
 }
 
-/* Smooth theme transitions */
-*, *::before, *::after {
+/* Smooth theme transitions — scoped to layout elements, not all elements */
+nav, main, .bg-surface, .bg-canvas,
+[class*="bg-surface"], [class*="bg-canvas"],
+[class*="border-surface"], [class*="text-primary"],
+[class*="text-secondary"], [class*="text-muted"] {
   transition-property: background-color, border-color, color, box-shadow;
   transition-duration: 200ms;
   transition-timing-function: ease;
