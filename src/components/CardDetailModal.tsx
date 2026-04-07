@@ -164,15 +164,9 @@ export default function CardDetailModal({ card, onClose }: Props) {
           </div>
 
           {/* Card name footer */}
-          <div
-            className="px-5 py-3 flex items-center justify-between border-t"
-            style={{
-              background: 'rgba(10, 10, 18, 0.96)',
-              borderColor: 'rgba(255,255,255,0.07)',
-            }}
-          >
-            <span className="text-sm font-semibold text-white/90">{card.name}</span>
-            <span className="text-[10px] font-mono text-white/30">
+          <div className="px-5 py-3 flex items-center justify-between border-t border-surface-border bg-surface">
+            <span className="text-sm font-semibold text-primary">{card.name}</span>
+            <span className="text-[10px] font-mono text-muted">
               {new Date(card.createdAt).toLocaleDateString()}
             </span>
           </div>
