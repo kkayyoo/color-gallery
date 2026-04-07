@@ -4,6 +4,7 @@ import type { ColorCard } from '../types'
 import InlineNameEditor from './InlineNameEditor'
 import ConfirmDialog from './ConfirmDialog'
 import ExportPanel from './ExportPanel'
+import CardDetailModal from './CardDetailModal'
 import { exportCardAsPng } from '../lib/canvasExport'
 
 interface Props {
@@ -16,8 +17,10 @@ interface Props {
 export default function GridView({ cards, onFavorite, onDelete, onRename }: Props) {
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [exportCodeId, setExportCodeId] = useState<string | null>(null)
+  const [detailCardId, setDetailCardId] = useState<string | null>(null)
 
   const exportingCard = exportCodeId ? cards.find(c => c.id === exportCodeId) : null
+  const detailCard = detailCardId ? cards.find(c => c.id === detailCardId) : null
 
   if (cards.length === 0) {
     return (
@@ -57,6 +60,13 @@ export default function GridView({ cards, onFavorite, onDelete, onRename }: Prop
         />
       )}
 
+      {detailCard && (
+        <CardDetailModal
+          card={detailCard}
+          onClose={() => setDetailCardId(null)}
+        />
+      )}
+
       <div className="grid grid-cols-2 gap-5">
         {cards.map(card => (
           <div
@@ -68,7 +78,9 @@ export default function GridView({ cards, onFavorite, onDelete, onRename }: Prop
               <img
                 src={card.imageDataUrl}
                 alt={card.name}
-                className="w-full h-44 object-cover"
+                className="w-full h-44 object-cover cursor-zoom-in"
+                onClick={() => setDetailCardId(card.id)}
+                title="Click to view full image"
               />
               {/* Favorite badge */}
               {card.favorited && (
