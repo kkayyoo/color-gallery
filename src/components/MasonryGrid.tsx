@@ -193,7 +193,7 @@ function TiltCard({
         </div>
 
         {/* Static color strip — always visible, thin accent line */}
-        <div className="flex h-1">
+        <div className="flex h-1.5">
           {card.colors.map((color, i) => (
             <div key={i} className="flex-1" style={{ backgroundColor: color.hex }} />
           ))}
