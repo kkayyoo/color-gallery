@@ -237,7 +237,7 @@ function TiltCard({
             </button>
             <button
               onClick={e => { e.stopPropagation(); onDelete() }}
-              className="ml-auto p-1 text-faint hover:text-accent-rose opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+              className="ml-auto p-1 text-faint hover:text-accent-rose sm:opacity-0 sm:group-hover:opacity-100 transition-all cursor-pointer"
               title="Delete"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
