@@ -167,3 +167,45 @@ nav, main, .bg-surface, .bg-canvas,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Masonry grid layout ──────────────────────────────────────────── */
+.masonry-grid {
+  column-gap: 1.25rem; /* 20px = gap-5 */
+}
+
+.masonry-card {
+  position: relative;
+  /* Prevent cards from being split across columns */
+  break-inside: avoid;
+}
+
+/* ── Tilt card: GPU-composited layers for smooth animation ─────────── */
+
+/* Inner card — transform updated via JS rAF, GPU-composited */
+.tilt-inner {
+  will-change: transform;
+  transform-style: preserve-3d;
+  transition: box-shadow 0.35s ease;
+}
+
+/* Color aura glow — default (idle) state */
+.tilt-aura {
+  filter: blur(20px);
+  opacity: 0.10;
+  transform: scale(0.92) translateY(8px);
+  transition: filter 0.5s ease, opacity 0.5s ease;
+  will-change: filter, opacity;
+}
+
+/* Color aura glow — hovered state */
+.tilt-aura.aura-active {
+  filter: blur(40px);
+  opacity: 0.30;
+}
+
+/* ── Carousel info panel ──────────────────────────────────────────── */
+.carousel-info-panel {
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}

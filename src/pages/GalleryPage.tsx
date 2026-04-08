@@ -3,12 +3,13 @@ import { useState, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
 import { validateImportPayload } from '../lib/storage'
+import MasonryGrid from '../components/MasonryGrid'
 import GridView from '../components/GridView'
 import CarouselView from '../components/CarouselView'
 import type { ColorCard } from '../types'
 
 type Tab = 'all' | 'favorites'
-type ViewMode = 'grid' | 'carousel'
+type ViewMode = 'masonry' | 'grid' | 'carousel'
 
 function exportJson(cards: ColorCard[]) {
   const blob = new Blob([JSON.stringify(cards, null, 2)], { type: 'application/json' })
@@ -23,7 +24,7 @@ function exportJson(cards: ColorCard[]) {
 export default function GalleryPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const tab: Tab = searchParams.get('tab') === 'favorites' ? 'favorites' : 'all'
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [viewMode, setViewMode] = useState<ViewMode>('masonry')
   const [importError, setImportError] = useState<string | null>(null)
   const importInputRef = useRef<HTMLInputElement>(null)
 
@@ -81,7 +82,7 @@ export default function GalleryPage() {
         }}
       />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-8 py-12">
+      <div className="relative z-10 max-w-6xl mx-auto px-8 py-12">
         {/* Header */}
         <div className="flex items-end justify-between mb-10">
           <div>
@@ -155,6 +156,16 @@ export default function GalleryPage() {
           {/* View toggle */}
           <div className="flex gap-1 bg-surface rounded-xl p-1 border border-surface-border">
             <button
+              onClick={() => setViewMode('masonry')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer ${
+                viewMode === 'masonry'
+                  ? 'bg-surface-overlay text-primary'
+                  : 'text-muted hover:text-secondary'
+              }`}
+            >
+              Masonry
+            </button>
+            <button
               onClick={() => setViewMode('grid')}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer ${
                 viewMode === 'grid'
@@ -172,13 +183,20 @@ export default function GalleryPage() {
                   : 'text-muted hover:text-secondary'
               }`}
             >
-              3D Carousel
+              3D
             </button>
           </div>
         </div>
 
         {/* Content */}
-        {viewMode === 'grid' ? (
+        {viewMode === 'masonry' ? (
+          <MasonryGrid
+            cards={displayed}
+            onFavorite={toggleFavorite}
+            onDelete={deleteCard}
+            onRename={renameCard}
+          />
+        ) : viewMode === 'grid' ? (
           <GridView
             cards={displayed}
             onFavorite={toggleFavorite}
@@ -187,10 +205,10 @@ export default function GalleryPage() {
           />
         ) : (
           <div
-            className="w-full h-[600px] rounded-2xl overflow-hidden border border-surface-border"
+            className="w-full h-[650px] rounded-2xl overflow-hidden border border-surface-border"
             style={{
               background: 'var(--carousel-bg)',
-              boxShadow: '0 0 60px rgba(99,102,241,0.08)',
+              boxShadow: '0 4px 80px rgba(99,102,241,0.10), 0 0 0 1px rgba(99,102,241,0.05)',
             }}
           >
             {displayed.length === 0 ? (
