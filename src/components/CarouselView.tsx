@@ -9,8 +9,8 @@ interface Props {
 }
 
 /* ── Constants ────────────────────────────────────────────────────── */
-const CARD_AREA = 9.0       // target visual area in world units (w*h ≈ 9)
-const GAP = 3.4             // horizontal spacing between card centers
+const CARD_AREA = 14.0      // target visual area in world units (w*h ≈ 14)
+const GAP = 4.2             // horizontal spacing between card centers
 
 /* ── Result from texture build — includes aspect ratio ───────────── */
 interface CardTextures {
@@ -168,6 +168,9 @@ export default function CarouselView({ cards }: Props) {
     dragging: false,
     lastPointerX: 0,
     pointerDownX: 0,
+    autoRotate: true,
+    hovered: false,
+    lastAdvanceTime: 0,
   })
 
   // Keep activeIndex in sync
@@ -190,9 +193,9 @@ export default function CarouselView({ cards }: Props) {
 
     /* ── Scene + Camera ─────────────────────── */
     const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100)
-    camera.position.set(0, 0.6, 7)
-    camera.lookAt(0, 0.2, 0)
+    const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 100)
+    camera.position.set(0, 0.8, 8)
+    camera.lookAt(0, 0.0, 0)
 
     /* ── Build card meshes (per-card aspect ratio) ── */
     const cardData = await Promise.all(cards.map(buildCardTextures))
@@ -244,7 +247,7 @@ export default function CarouselView({ cards }: Props) {
     })
     const floor = new THREE.Mesh(floorGeo, floorMat)
     floor.rotation.x = -Math.PI / 2
-    floor.position.y = -maxCardH / 2 - 0.02
+    floor.position.y = -maxCardH / 2 * 1.35 - 0.02
     scene.add(floor)
 
     /* ── Position cards in coverflow arc ─────── */
@@ -256,24 +259,28 @@ export default function CarouselView({ cards }: Props) {
         // Coverflow: center card faces forward, side cards angle away
         const angle = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, offset * 0.25))
         const z = -Math.abs(offset) * 0.35 // push back non-center cards
-        const y = 0
-
-        mesh.position.set(offset, y, z)
-        mesh.rotation.y = -angle
 
         // Depth fade — cards further from center fade out
         const distFromCenter = Math.abs(offset) / GAP
         const mat = mesh.material as THREE.MeshBasicMaterial
         mat.opacity = Math.max(0.15, 1.0 - distFromCenter * 0.3)
 
-        // Slight scale variation
-        const sc = Math.max(0.7, 1.0 - distFromCenter * 0.08)
+        // Active card pops, side cards shrink noticeably
+        const sc = Math.max(0.45, 1.35 - distFromCenter * 0.35)
         mesh.scale.set(sc, sc, 1)
+
+        // Align all cards to a shared bottom edge so scaled-up center card
+        // grows upward instead of clipping below the viewport
+        const dim = cardDims[i]
+        const bottomEdge = -dim.h / 2 * 1.35 // floor level = half-height of largest scale
+        const y = bottomEdge + (dim.h * sc) / 2
+
+        mesh.position.set(offset, y, z)
+        mesh.rotation.y = -angle
 
         // Reflection
         const reflMesh = reflMeshes[i]
-        const dim = cardDims[i]
-        reflMesh.position.set(offset, -dim.h / 2 - (dim.h * 0.4) / 2 * sc - 0.02, z)
+        reflMesh.position.set(offset, bottomEdge - (dim.h * 0.4) / 2 * sc - 0.02, z)
         reflMesh.rotation.y = -angle
         reflMesh.scale.set(sc, sc, 1)
         const reflMat = reflMesh.material as THREE.MeshBasicMaterial
@@ -292,15 +299,27 @@ export default function CarouselView({ cards }: Props) {
     positionCards()
 
     /* ── Animation loop ─────────────────────── */
+    const AUTO_INTERVAL = 3000 // ms between auto-advances
     let animId: number
-    function animate() {
+    function animate(time: number) {
       animId = requestAnimationFrame(animate)
       const s = stateRef.current
+
+      // Auto-rotate: advance to next card if not hovered/dragging
+      if (s.autoRotate && !s.hovered && !s.dragging && cards.length > 1) {
+        if (s.lastAdvanceTime === 0) s.lastAdvanceTime = time
+        if (time - s.lastAdvanceTime >= AUTO_INTERVAL) {
+          s.lastAdvanceTime = time
+          const nextIdx = (s.activeIndex + 1) % cards.length
+          s.targetX = nextIdx * GAP
+        }
+      }
+
       s.currentX += (s.targetX - s.currentX) * 0.1
       positionCards()
       renderer.render(scene, camera)
     }
-    animate()
+    animId = requestAnimationFrame(animate)
 
     /* ── Resize ──────────────────────────────── */
     function handleResize() {
@@ -330,9 +349,23 @@ export default function CarouselView({ cards }: Props) {
       const nearest = Math.round(stateRef.current.targetX / GAP)
       const clamped = Math.max(0, Math.min(cards.length - 1, nearest))
       stateRef.current.targetX = clamped * GAP
+      // Reset auto-rotate timer so it waits a full interval after interaction
+      stateRef.current.lastAdvanceTime = 0
+    }
+
+    /* ── Hover pause for auto-rotate ─────────── */
+    function onPointerEnter() {
+      stateRef.current.hovered = true
+    }
+    function onPointerLeave() {
+      stateRef.current.hovered = false
+      // Reset timer so it waits a full interval after un-hover
+      stateRef.current.lastAdvanceTime = 0
     }
 
     renderer.domElement.addEventListener('pointerdown', onPointerDown)
+    renderer.domElement.addEventListener('pointerenter', onPointerEnter)
+    renderer.domElement.addEventListener('pointerleave', onPointerLeave)
     window.addEventListener('pointermove', onPointerMove)
     window.addEventListener('pointerup', onPointerUp)
 
@@ -351,6 +384,7 @@ export default function CarouselView({ cards }: Props) {
         const idx = meshes.indexOf(hits[0].object as THREE.Mesh)
         if (idx !== -1) {
           stateRef.current.targetX = idx * GAP
+          stateRef.current.lastAdvanceTime = 0
         }
       }
     }
@@ -361,9 +395,11 @@ export default function CarouselView({ cards }: Props) {
       if (e.key === 'ArrowLeft') {
         const prev = Math.max(0, stateRef.current.activeIndex - 1)
         stateRef.current.targetX = prev * GAP
+        stateRef.current.lastAdvanceTime = 0
       } else if (e.key === 'ArrowRight') {
         const next = Math.min(cards.length - 1, stateRef.current.activeIndex + 1)
         stateRef.current.targetX = next * GAP
+        stateRef.current.lastAdvanceTime = 0
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -376,6 +412,8 @@ export default function CarouselView({ cards }: Props) {
       window.removeEventListener('pointerup', onPointerUp)
       window.removeEventListener('keydown', onKeyDown)
       renderer.domElement.removeEventListener('pointerdown', onPointerDown)
+      renderer.domElement.removeEventListener('pointerenter', onPointerEnter)
+      renderer.domElement.removeEventListener('pointerleave', onPointerLeave)
       renderer.domElement.removeEventListener('click', onClick)
       cardData.forEach(d => {
         d.poster.dispose()
