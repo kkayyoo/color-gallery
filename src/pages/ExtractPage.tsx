@@ -82,7 +82,9 @@ export default function ExtractPage() {
   return (
     <main className="min-h-screen bg-canvas text-primary">
       {storageWarning && (
-        <div className="bg-amber-900/30 border-b border-amber-700/50 px-8 py-3 text-sm text-amber-300/80">
+        <div className="border-b border-surface-border px-8 py-3 text-sm text-secondary"
+          style={{ background: 'rgba(245, 158, 11, 0.08)' }}
+        >
           Storage is nearly full (over 4MB). Consider exporting and deleting old cards.
         </div>
       )}

@@ -209,16 +209,20 @@ export default function CarouselView({ cards }: Props) {
       <button
         onClick={() => rotate(-1)}
         aria-label="Previous card"
-        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-gray-900/80 hover:bg-gray-800 text-white rounded-full transition-colors z-10"
+        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-surface/80 hover:bg-surface-overlay text-primary rounded-full transition-colors z-10 cursor-pointer backdrop-blur-sm border border-surface-border"
       >
-        ←
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
       </button>
       <button
         onClick={() => rotate(1)}
         aria-label="Next card"
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-gray-900/80 hover:bg-gray-800 text-white rounded-full transition-colors z-10"
+        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-surface/80 hover:bg-surface-overlay text-primary rounded-full transition-colors z-10 cursor-pointer backdrop-blur-sm border border-surface-border"
       >
-        →
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
       </button>
     </div>
   )

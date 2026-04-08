@@ -66,7 +66,9 @@ export default function GalleryPage() {
   return (
     <main className="min-h-screen bg-canvas text-primary">
       {storageWarning && (
-        <div className="bg-amber-900/30 border-b border-amber-700/50 px-8 py-3 text-sm text-amber-300/80">
+        <div className="border-b border-surface-border px-8 py-3 text-sm text-secondary"
+          style={{ background: 'rgba(245, 158, 11, 0.08)' }}
+        >
           Storage is nearly full (over 4MB). Export your collection and delete old cards to free space.
         </div>
       )}
@@ -130,7 +132,7 @@ export default function GalleryPage() {
           <div className="flex gap-1 bg-surface rounded-xl p-1 border border-surface-border">
             <button
               onClick={() => setTab('all')}
-              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer ${
                 tab === 'all'
                   ? 'bg-surface-overlay text-primary'
                   : 'text-muted hover:text-secondary'
@@ -140,7 +142,7 @@ export default function GalleryPage() {
             </button>
             <button
               onClick={() => setTab('favorites')}
-              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer ${
                 tab === 'favorites'
                   ? 'bg-surface-overlay text-primary'
                   : 'text-muted hover:text-secondary'
@@ -154,7 +156,7 @@ export default function GalleryPage() {
           <div className="flex gap-1 bg-surface rounded-xl p-1 border border-surface-border">
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer ${
                 viewMode === 'grid'
                   ? 'bg-surface-overlay text-primary'
                   : 'text-muted hover:text-secondary'
@@ -164,7 +166,7 @@ export default function GalleryPage() {
             </button>
             <button
               onClick={() => setViewMode('carousel')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer ${
                 viewMode === 'carousel'
                   ? 'bg-surface-overlay text-primary'
                   : 'text-muted hover:text-secondary'
