@@ -210,7 +210,7 @@ function TiltCard({
           <div className="flex items-center gap-1.5">
             <button
               onClick={e => { e.stopPropagation(); onFavorite() }}
-              className="transition-transform hover:scale-125 active:scale-110 mr-0.5 cursor-pointer"
+              className="transition-transform hover:scale-125 active:scale-110 mr-0.5 cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
               title={card.favorited ? 'Remove from favorites' : 'Add to favorites'}
             >
               {card.favorited ? (
@@ -225,19 +225,19 @@ function TiltCard({
             </button>
             <button
               onClick={e => { e.stopPropagation(); onExportPng() }}
-              className="px-2 py-0.5 text-muted hover:text-primary bg-surface-raised hover:bg-surface-overlay text-[11px] rounded-lg transition-all border border-surface-border cursor-pointer"
+              className="px-2 py-0.5 text-muted hover:text-primary bg-surface-raised hover:bg-surface-overlay text-[11px] rounded-lg transition-all border border-surface-border cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
             >
               PNG
             </button>
             <button
               onClick={e => { e.stopPropagation(); onExportCode() }}
-              className="px-2 py-0.5 text-muted hover:text-primary bg-surface-raised hover:bg-surface-overlay text-[11px] rounded-lg transition-all border border-surface-border font-mono cursor-pointer"
+              className="px-2 py-0.5 text-muted hover:text-primary bg-surface-raised hover:bg-surface-overlay text-[11px] rounded-lg transition-all border border-surface-border font-mono cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
             >
               {'</>'}
             </button>
             <button
               onClick={e => { e.stopPropagation(); onDelete() }}
-              className="ml-auto p-1 text-faint hover:text-accent-rose sm:opacity-0 sm:group-hover:opacity-100 transition-all cursor-pointer"
+              className="ml-auto p-1 text-faint hover:text-accent-rose sm:opacity-0 sm:group-hover:opacity-100 transition-all cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
               title="Delete"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
