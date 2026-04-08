@@ -71,7 +71,7 @@ function TiltCard({
           observer.disconnect()
         }
       },
-      { threshold: 0.15 },
+      { threshold: 0.01, rootMargin: '100px 0px' },
     )
     observer.observe(el)
     return () => observer.disconnect()
