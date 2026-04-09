@@ -268,10 +268,12 @@ export default function MasonryGrid({ cards, onFavorite, onDelete, onRename }: P
   const [exportCodeId, setExportCodeId] = useState<string | null>(null)
   const [detailCardId, setDetailCardId] = useState<string | null>(null)
 
-  // Single shared IntersectionObserver for all TiltCards (instead of N observers)
+  // Single shared IntersectionObserver for all TiltCards (instead of N observers).
+  // Created eagerly (not in useEffect) so it's available when child effects run —
+  // React fires child effects before parent effects, so a parent useEffect would
+  // still be null when TiltCard effects try to register.
   const observerRef = useRef<IntersectionObserver | null>(null)
-
-  useEffect(() => {
+  if (!observerRef.current) {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -283,6 +285,10 @@ export default function MasonryGrid({ cards, onFavorite, onDelete, onRename }: P
       },
       { threshold: 0.01, rootMargin: '100px 0px' }
     )
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
       observerRef.current?.disconnect()
       observerRef.current = null
