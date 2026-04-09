@@ -1,5 +1,5 @@
 // src/components/MasonryGrid.tsx
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import type { ColorCard } from '../types'
 import InlineNameEditor from './InlineNameEditor'
@@ -15,6 +15,11 @@ interface Props {
   onRename: (id: string, name: string) => void
 }
 
+/* ── Module-level set: tracks card IDs that have already played their entrance
+     animation this session. Survives component unmount/remount so switching
+     between Masonry/Grid/3D views doesn't replay the fade-in every time. ── */
+const revealedCardIds = new Set<string>()
+
 /* ── TiltCard: 3D perspective + color aura, hover overlay ──────────── */
 function TiltCard({
   card,
@@ -25,6 +30,7 @@ function TiltCard({
   onExportPng,
   onExportCode,
   onDetail,
+  observerRef,
 }: {
   card: ColorCard
   index: number
@@ -34,6 +40,7 @@ function TiltCard({
   onExportPng: () => void
   onExportCode: () => void
   onDetail: () => void
+  observerRef: React.MutableRefObject<IntersectionObserver | null>
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
@@ -43,30 +50,35 @@ function TiltCard({
   // Tilt state kept outside React — never triggers re-renders
   const tiltState = useRef({ targetX: 0, targetY: 0, currentX: 0, currentY: 0, hovered: false })
 
-  const [revealed, setRevealed] = useState(false)
+  // If this card has already been revealed in this session, start visible immediately
+  const [revealed, setRevealed] = useState(() => revealedCardIds.has(card.id))
 
   // Dominant color = first extracted color
   const dominantColor = card.colors[0]?.hex ?? '#6366f1'
 
-  // Staggered scroll-reveal via IntersectionObserver
+  // Register with the shared IntersectionObserver (only if not yet revealed)
   useEffect(() => {
     const el = wrapperRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => setRevealed(true), (index % 6) * 80)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.01, rootMargin: '100px 0px' },
-    )
+    if (!el || revealed) return
+    const observer = observerRef.current
+    if (!observer) return
+    // Store the reveal callback on the element so the shared observer can call it
+    ;(el as any).__onReveal = () => {
+      const delay = (index % 6) * 80
+      setTimeout(() => {
+        setRevealed(true)
+        revealedCardIds.add(card.id)
+      }, delay)
+    }
     observer.observe(el)
-    return () => observer.disconnect()
-  }, [index])
+    return () => {
+      observer.unobserve(el)
+      delete (el as any).__onReveal
+    }
+  }, [card.id, index, revealed, observerRef])
 
-  // rAF animation loop — lerps current tilt toward target for buttery smoothness
-  useEffect(() => {
+  // rAF tilt loop — only runs while hovered, stops when idle
+  const startTiltLoop = useCallback(() => {
     const LERP = 0.12
     const LERP_RETURN = 0.08
 
@@ -76,22 +88,34 @@ function TiltCard({
       s.currentX += (s.targetX - s.currentX) * lerp
       s.currentY += (s.targetY - s.currentY) * lerp
 
-      if (Math.abs(s.currentX) < 0.01 && Math.abs(s.currentY) < 0.01 && !s.hovered) {
-        s.currentX = 0
-        s.currentY = 0
-      }
-
       const scale = s.hovered ? 1.02 : 1
       if (innerRef.current) {
         innerRef.current.style.transform =
           `rotateX(${s.currentX}deg) rotateY(${s.currentY}deg) scale(${scale})`
       }
 
+      // Stop the loop once tilt has returned to zero and mouse has left
+      if (!s.hovered && Math.abs(s.currentX) < 0.01 && Math.abs(s.currentY) < 0.01) {
+        s.currentX = 0
+        s.currentY = 0
+        if (innerRef.current) {
+          innerRef.current.style.transform = ''
+        }
+        rafRef.current = 0
+        return
+      }
+
       rafRef.current = requestAnimationFrame(tick)
     }
 
-    rafRef.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafRef.current)
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(tick)
+    }
+  }, [])
+
+  // Cleanup rAF on unmount
+  useEffect(() => {
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
   }, [])
 
   function handleMouseMove(e: React.MouseEvent) {
@@ -106,6 +130,7 @@ function TiltCard({
 
   function handleMouseEnter() {
     tiltState.current.hovered = true
+    startTiltLoop()
     auraRef.current?.classList.add('aura-active')
     if (innerRef.current) {
       innerRef.current.style.boxShadow =
@@ -243,6 +268,27 @@ export default function MasonryGrid({ cards, onFavorite, onDelete, onRename }: P
   const [exportCodeId, setExportCodeId] = useState<string | null>(null)
   const [detailCardId, setDetailCardId] = useState<string | null>(null)
 
+  // Single shared IntersectionObserver for all TiltCards (instead of N observers)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            ;(entry.target as any).__onReveal?.()
+            observerRef.current?.unobserve(entry.target)
+          }
+        }
+      },
+      { threshold: 0.01, rootMargin: '100px 0px' }
+    )
+    return () => {
+      observerRef.current?.disconnect()
+      observerRef.current = null
+    }
+  }, [])
+
   const exportingCard = exportCodeId ? cards.find(c => c.id === exportCodeId) : null
   const detailCard = detailCardId ? cards.find(c => c.id === detailCardId) : null
 
@@ -304,6 +350,7 @@ export default function MasonryGrid({ cards, onFavorite, onDelete, onRename }: P
             onExportPng={() => exportCardAsPng(card)}
             onExportCode={() => setExportCodeId(card.id)}
             onDetail={() => setDetailCardId(card.id)}
+            observerRef={observerRef}
           />
         ))}
       </div>
