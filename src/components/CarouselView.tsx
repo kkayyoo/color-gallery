@@ -222,12 +222,13 @@ export default function CarouselView({ cards }: Props) {
       meshes.push(mesh)
       scene.add(mesh)
 
-      // Reflection below
+      // Reflection below — reduced in light mode to avoid gray smudge on white bg
       const reflGeo = new THREE.PlaneGeometry(w, h * 0.4)
+      const reflOpacity = document.documentElement.getAttribute('data-theme') === 'dark' ? 0.15 : 0.06
       const reflMat = new THREE.MeshBasicMaterial({
         map: reflection,
         transparent: true,
-        opacity: 0.15,
+        opacity: reflOpacity,
         side: THREE.FrontSide,
         depthWrite: false,
       })
@@ -236,14 +237,15 @@ export default function CarouselView({ cards }: Props) {
       scene.add(reflMesh)
     })
 
-    /* ── Floor (subtle dark plane for grounding) ── */
+    /* ── Floor (subtle plane for grounding — theme-aware) ── */
     // Use the tallest card height to position the floor
     const maxCardH = Math.max(...cardDims.map(d => d.h))
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
     const floorGeo = new THREE.PlaneGeometry(40, 15)
     const floorMat = new THREE.MeshBasicMaterial({
-      color: 0x0a0a14,
+      color: isDark ? 0x0a0a14 : 0xd8d8e0,
       transparent: true,
-      opacity: 0.3,
+      opacity: isDark ? 0.3 : 0.25,
     })
     const floor = new THREE.Mesh(floorGeo, floorMat)
     floor.rotation.x = -Math.PI / 2
@@ -284,7 +286,7 @@ export default function CarouselView({ cards }: Props) {
         reflMesh.rotation.y = -angle
         reflMesh.scale.set(sc, sc, 1)
         const reflMat = reflMesh.material as THREE.MeshBasicMaterial
-        reflMat.opacity = Math.max(0, 0.12 - distFromCenter * 0.04)
+        reflMat.opacity = Math.max(0, (isDark ? 0.12 : 0.05) - distFromCenter * 0.04)
       })
 
       // Determine active index
