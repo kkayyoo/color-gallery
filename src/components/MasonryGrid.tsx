@@ -162,7 +162,12 @@ function TiltCard({
             loading="lazy"
           />
 
-          {/* Name + actions on hover — no overlay */}
+          {/* Subtle bottom scrim for text legibility on pale images */}
+          <div className="absolute inset-x-0 bottom-0 h-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.35), transparent)' }}
+          />
+
+          {/* Name + actions on hover */}
           <div className="absolute inset-x-0 bottom-0 p-3.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
             <InlineNameEditor
               value={card.name}
