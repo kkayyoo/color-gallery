@@ -115,7 +115,7 @@ export default function GridView({ cards, onFavorite, onDelete, onRename }: Prop
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => onFavorite(card.id)}
-                  className="transition-transform hover:scale-125 active:scale-110 mr-0.5 cursor-pointer"
+                  className="transition-transform hover:scale-125 active:scale-110 mr-0.5 cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
                   title={card.favorited ? 'Remove from favorites' : 'Add to favorites'}
                 >
                   {card.favorited ? (
@@ -130,19 +130,19 @@ export default function GridView({ cards, onFavorite, onDelete, onRename }: Prop
                 </button>
                 <button
                   onClick={() => exportCardAsPng(card)}
-                  className="px-2.5 py-1 text-muted hover:text-primary bg-surface-raised hover:bg-surface-overlay text-xs rounded-lg transition-all border border-surface-border"
+                  className="px-2.5 py-1 text-muted hover:text-primary bg-surface-raised hover:bg-surface-overlay text-xs rounded-lg transition-all border border-surface-border cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
                 >
                   PNG
                 </button>
                 <button
                   onClick={() => setExportCodeId(card.id)}
-                  className="px-2.5 py-1 text-muted hover:text-primary bg-surface-raised hover:bg-surface-overlay text-xs rounded-lg transition-all border border-surface-border font-mono"
+                  className="px-2.5 py-1 text-muted hover:text-primary bg-surface-raised hover:bg-surface-overlay text-xs rounded-lg transition-all border border-surface-border font-mono cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
                 >
                   {'</>'}
                 </button>
                 <button
                   onClick={() => setConfirmId(card.id)}
-                  className="ml-auto p-1 text-faint hover:text-accent-rose opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                  className="ml-auto p-1 text-faint hover:text-accent-rose opacity-0 group-hover:opacity-100 transition-all cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
                   title="Delete"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

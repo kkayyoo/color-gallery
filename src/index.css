@@ -175,7 +175,6 @@ nav, main, .bg-surface, .bg-canvas,
 
 .masonry-card {
   position: relative;
-  /* Prevent cards from being split across columns */
   break-inside: avoid;
 }
 
