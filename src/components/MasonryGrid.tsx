@@ -1,5 +1,5 @@
 // src/components/MasonryGrid.tsx
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import type { ColorCard } from '../types'
 import InlineNameEditor from './InlineNameEditor'
@@ -20,10 +20,41 @@ interface Props {
      between Masonry/Grid/3D views doesn't replay the fade-in every time. ── */
 const revealedCardIds = new Set<string>()
 
+/* ── Base64 → Blob URL cache: avoids decoding the same base64 on every render.
+     The browser can load blob URLs asynchronously off the main thread. ── */
+const blobUrlCache = new Map<string, string>()
+
+function getBlobUrl(dataUrl: string, cardId: string): string {
+  const cached = blobUrlCache.get(cardId)
+  if (cached) return cached
+
+  // Convert base64 data URL to a Blob URL (decoded off main thread by browser)
+  try {
+    const [meta, base64] = dataUrl.split(',')
+    const mime = meta.match(/:(.*?);/)?.[1] ?? 'image/jpeg'
+    const binary = atob(base64)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+    const blob = new Blob([bytes], { type: mime })
+    const url = URL.createObjectURL(blob)
+    blobUrlCache.set(cardId, url)
+    return url
+  } catch {
+    // Fallback to original data URL if conversion fails
+    return dataUrl
+  }
+}
+
+/* ── Stable stagger index from card ID — avoids depending on array position ── */
+function staggerFromId(id: string): number {
+  let h = 0
+  for (let i = 0; i < id.length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0
+  return (Math.abs(h) % 6) * 80
+}
+
 /* ── TiltCard: 3D perspective + color aura, hover overlay ──────────── */
-function TiltCard({
+const TiltCard = memo(function TiltCard({
   card,
-  index,
   onFavorite,
   onDelete,
   onRename,
@@ -33,7 +64,6 @@ function TiltCard({
   observerRef,
 }: {
   card: ColorCard
-  index: number
   onFavorite: () => void
   onDelete: () => void
   onRename: (id: string, name: string) => void
@@ -56,6 +86,12 @@ function TiltCard({
   // Dominant color = first extracted color
   const dominantColor = card.colors[0]?.hex ?? '#6366f1'
 
+  // Stagger delay derived from card ID (stable across tab switches)
+  const staggerDelay = useMemo(() => staggerFromId(card.id), [card.id])
+
+  // Convert base64 data URL to blob URL (cached, avoids main-thread decode)
+  const imgSrc = useMemo(() => getBlobUrl(card.imageDataUrl, card.id), [card.imageDataUrl, card.id])
+
   // Register with the shared IntersectionObserver (only if not yet revealed)
   useEffect(() => {
     const el = wrapperRef.current
@@ -64,18 +100,17 @@ function TiltCard({
     if (!observer) return
     // Store the reveal callback on the element so the shared observer can call it
     ;(el as any).__onReveal = () => {
-      const delay = (index % 6) * 80
       setTimeout(() => {
         setRevealed(true)
         revealedCardIds.add(card.id)
-      }, delay)
+      }, staggerDelay)
     }
     observer.observe(el)
     return () => {
       observer.unobserve(el)
       delete (el as any).__onReveal
     }
-  }, [card.id, index, revealed, observerRef])
+  }, [card.id, staggerDelay, revealed, observerRef])
 
   // rAF tilt loop — only runs while hovered, stops when idle
   const startTiltLoop = useCallback(() => {
@@ -152,12 +187,12 @@ function TiltCard({
   return (
     <div
       ref={wrapperRef}
-      className={`masonry-card mb-5 break-inside-avoid transition-opacity duration-500 ${
+      className={`masonry-card mb-5 transition-opacity duration-500 ${
         revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
       }`}
       style={{
         perspective: '800px',
-        transitionDelay: revealed ? '0ms' : `${(index % 6) * 80}ms`,
+        transitionDelay: revealed ? '0ms' : `${staggerDelay}ms`,
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
@@ -181,10 +216,11 @@ function TiltCard({
         {/* Image at natural aspect ratio — overflow-hidden scoped here so scale doesn't push color strip */}
         <div className="relative overflow-hidden" onClick={onDetail}>
           <img
-            src={card.imageDataUrl}
+            src={imgSrc}
             alt={card.name}
             className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
           />
 
           {/* Subtle bottom scrim for text legibility on pale images */}
@@ -260,7 +296,7 @@ function TiltCard({
       </div>
     </div>
   )
-}
+})
 
 /* ── MasonryGrid: the main export ──────────────────────────────────── */
 export default function MasonryGrid({ cards, onFavorite, onDelete, onRename }: Props) {
@@ -287,16 +323,38 @@ export default function MasonryGrid({ cards, onFavorite, onDelete, onRename }: P
     )
   }
 
-  // Cleanup on unmount
+  // Cleanup on unmount — disconnect but do NOT null the ref.
+  // React 19 StrictMode double-invokes effects: cleanup runs then children
+  // re-mount and need the observer to still be available.
   useEffect(() => {
     return () => {
       observerRef.current?.disconnect()
-      observerRef.current = null
     }
   }, [])
 
   const exportingCard = exportCodeId ? cards.find(c => c.id === exportCodeId) : null
   const detailCard = detailCardId ? cards.find(c => c.id === detailCardId) : null
+
+  // Per-card stable callbacks — critical for React.memo on TiltCard to work
+  const cardCallbacks = useMemo(() => {
+    const map = new Map<string, {
+      onFavorite: () => void
+      onDelete: () => void
+      onExportPng: () => void
+      onExportCode: () => void
+      onDetail: () => void
+    }>()
+    for (const card of cards) {
+      map.set(card.id, {
+        onFavorite: () => onFavorite(card.id),
+        onDelete: () => setConfirmId(card.id),
+        onExportPng: () => exportCardAsPng(card),
+        onExportCode: () => setExportCodeId(card.id),
+        onDetail: () => setDetailCardId(card.id),
+      })
+    }
+    return map
+  }, [cards, onFavorite])
 
   if (cards.length === 0) {
     return (
@@ -345,20 +403,22 @@ export default function MasonryGrid({ cards, onFavorite, onDelete, onRename }: P
 
       {/* CSS Columns masonry layout */}
       <div className="masonry-grid columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-5">
-        {cards.map((card, i) => (
-          <TiltCard
-            key={card.id}
-            card={card}
-            index={i}
-            onFavorite={() => onFavorite(card.id)}
-            onDelete={() => setConfirmId(card.id)}
-            onRename={onRename}
-            onExportPng={() => exportCardAsPng(card)}
-            onExportCode={() => setExportCodeId(card.id)}
-            onDetail={() => setDetailCardId(card.id)}
-            observerRef={observerRef}
-          />
-        ))}
+        {cards.map((card) => {
+          const cbs = cardCallbacks.get(card.id)
+          return (
+            <TiltCard
+              key={card.id}
+              card={card}
+              onFavorite={cbs!.onFavorite}
+              onDelete={cbs!.onDelete}
+              onRename={onRename}
+              onExportPng={cbs!.onExportPng}
+              onExportCode={cbs!.onExportCode}
+              onDetail={cbs!.onDetail}
+              observerRef={observerRef}
+            />
+          )
+        })}
       </div>
     </>
   )
